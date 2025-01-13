@@ -1,5 +1,6 @@
 Name: Wesley Chiba
 Major: 4th year Computer Science
+Pronouns: he/him
 
 I thought this project idea would be nice since I worked on a similar project during CMPSC 184,
 where I worked on a mobile app project for creating study groups for students to browse and join.
