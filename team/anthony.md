@@ -1,8 +1,8 @@
-#Description of Me:
+##Description of Me:##
 
 I'm a 4th year CS Major at UCSB! I have some experience with React, Next, and AWS, and I'm looking forward to learning more about these technologies + more and coding something cool and useful!
 
-#Ideas for project:
+#Ideas for project:#
 
 1. Functional Features
    a. class groupchat
