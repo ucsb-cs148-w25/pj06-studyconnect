@@ -4,9 +4,9 @@ Project Description: A webapp that helps connect college students in the same cl
 
 Full Name: Github ID
 ----------------------
-Zhenyu Yu: ZhenyuYu1
-Wesley Chiba: jeffsmithepic
-Maria Saucedo-Flores: Maria-Saucedo
-Shelly Zhu: zhushelly
-Allen Hu: AllenHsm
+Zhenyu Yu: ZhenyuYu1 <br />
+Wesley Chiba: jeffsmithepic <br />
+Maria Saucedo-Flores: Maria-Saucedo <br />
+Shelly Zhu: zhushelly <br />
+Allen Hu: AllenHsm <br />
 Anthony Jin: jinanthony
