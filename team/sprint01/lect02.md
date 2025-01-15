@@ -1,6 +1,6 @@
 Project: Study Connect
 
-Mentor: None
+Mentors: Yunhao, Rachel
 
 Meeting Time: lect02
 
@@ -8,12 +8,13 @@ Type of meeting: Daily Scrum
 
 Team: 
 
-Allen Hu [x]
-Anthony Jin [x]
-Maria Saucedo-Flores [x]
-Shelly Zhu [x]
-Wesley Chiba [x]
-Zhenyu Yu [x]
+Allen Hu [x],
+Anthony Jin [x],
+Maria Saucedo-Flores [x],
+Shelly Zhu [x],
+Wesley Chiba [x],
+Zhenyu Yu [x],
+Hannah Su [ ]
 
 Scribed Discussion:
 
