@@ -16,7 +16,7 @@ Allen: Finished HW01, working on lab01.
 
 Anthony: Finished HW01, finished deploying Hello World on Vercel
 
-Hannah: Just joined team, going to work on
+Hannah: Just joined team, going to work on adding introduction .md file and then lab01
 
 Maria: Finished hw01, have Hello World running locally, working on Vercel deployment
 
