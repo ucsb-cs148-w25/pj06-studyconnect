@@ -1,5 +1,6 @@
 Vercel deployment: https://pj06-studyconnect-dykx3jn3a-zhenyuyu1s-projects.vercel.app/
-To run locally, go to "pj06-studyconnect" directory and do "npm run dev" in the CLI.
+To run locally, go to "pj06-studyconnect" directory and do "npm install" to install dependencies, then "npm run dev" to start up the site at [localhost:3000](http://localhost:3000/)
+Requires Node.js, which can be installed at https://nodejs.org/en
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
