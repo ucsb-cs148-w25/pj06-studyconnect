@@ -9,5 +9,5 @@ Wesley Chiba: jeffsmithepic <br />
 Maria Saucedo-Flores: Maria-Saucedo <br />
 Shelly Zhu: zhushelly <br />
 Allen Hu: AllenHsm <br />
-Anthony Jin: jinanthony
+Anthony Jin: jinanthony <br />
 Hannah Su: hannuhsu
