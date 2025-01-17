@@ -18,21 +18,15 @@ Started brainstorming details on project idea and design in the following Google
 
 https://docs.google.com/document/d/1MScZmAbAlNvZDfBdmYNBDciTr2aA1PwWL6T-1J9tVjc/edit?tab=t.0
 
+Current Goal: Have a functioning website by the end of the week with the ability to log in with an `@ucsb.edu` email. 
+
 
 ## How we will do it:
 
-Allen: ?
+1. Deploy a skeleton site on Vercel
 
-Anthony: ?
+2. Set up Firebase 
 
-Hannah: ?
+3. Set up Google OAuth to allow login with `@ucsb.edu` accounts
 
-Maria: ?
-
-Shelly: ?
-
-Wesley: ?
-
-Zhenyu: ?
-
-
+4. Create a functioning homepage that leads users to login page. 
