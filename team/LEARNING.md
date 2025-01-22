@@ -13,9 +13,9 @@ Focus on:
 3. UCSB API
 
 # Learning plan
-Maria: watch YouTube video on learning Next.js to make homepage
-Wesley: learn what features Next.js provides and how it differs from React and how to incorporate it
-Anthony: learn Next.js and learn how to implement necessary features
-Zhenyu: learn Next.js and watch tutorial on Firebase
-Allen: learn more Next.js, testing using Jest
-Shelly: learn Google OAuth and how that works with Firebase to enable login
+Maria: watch YouTube video on learning Next.js to make homepage </br>
+Wesley: learn what features Next.js provides and how it differs from React and how to incorporate it </br>
+Anthony: learn Next.js and learn how to implement necessary features </br>
+Zhenyu: learn Next.js and watch tutorial on Firebase </br>
+Allen: learn more Next.js, testing using Jest </br>
+Shelly: learn Google OAuth and how that works with Firebase to enable login </br>
