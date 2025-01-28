@@ -38,5 +38,9 @@ wanted to speak.
 For the goal of clarity, together on Monday the group will create rough sketches and ideas of the format they'd like the webapp to be in, and 
 notes on how each page should function. 
 
-* A brief assessment of how its results (did it improve things? move the needle at all?) <- not ready yet, fill this out on monday.
-* A decision going forward: keep the change, revert to previous procedure, make a new change? <- not ready yet, fill this in at the end of the sprint
+* The group used the following website to plan out the layout for the webapp: https://excalidraw.com/#room=72b092f5df5b7369bcf0,r9PKs_tsliApAquWMr08Lw
+With this visualization, it feels more clear what format the pages are going to be in, and how the class selection is going to work. Since some 
+aspects were labeled as "not needed for the MVP," it also feels like we aren't piling too much work on for the 1 week we have left to implement and
+record it, and now there is a document to reference when confused, that can have specifics pointed to when asking for help from rest of team. 
+
+* A decision going forward: keep the change, revert to previous procedure, make a new change? <- not ready yet, fill this in on friday
