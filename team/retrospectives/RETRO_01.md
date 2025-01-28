@@ -39,6 +39,7 @@ For the goal of clarity, together on Monday the group will create rough sketches
 notes on how each page should function. 
 
 * The group used the following website to plan out the layout for the webapp: https://excalidraw.com/#room=72b092f5df5b7369bcf0,r9PKs_tsliApAquWMr08Lw
+
 With this visualization, it feels more clear what format the pages are going to be in, and how the class selection is going to work. Since some 
 aspects were labeled as "not needed for the MVP," it also feels like we aren't piling too much work on for the 1 week we have left to implement and
 record it, and now there is a document to reference when confused, that can have specifics pointed to when asking for help from rest of team. 
