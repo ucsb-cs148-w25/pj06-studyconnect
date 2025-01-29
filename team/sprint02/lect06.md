@@ -20,7 +20,7 @@ Hannah:
 
 Maria: 
 
-Shelly: 
+Shelly: Finished HW. Will start working on Google OAuth. No blocks.
 
 Wesley: 
 
