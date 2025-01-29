@@ -16,8 +16,6 @@ Allen: finished hw, add a new page for the new user to set up their profile. No 
 
 Anthony: finished hw04, refreshed self on Next.js, creating user profile page. No blocks. 
 
-Hannah: 
-
 Maria: Finished hw04, was having problems getting the local app to run, is currently working on the homepage.
 
 Shelly: Finished HW. Will start working on Google OAuth. No blocks.
