@@ -14,7 +14,7 @@ Scribed Discussion:
 
 Allen: finished hw, add a new page for the new user to set up their profile. No blocks. 
 
-Anthony: 
+Anthony: finished hw04, refreshed self on Next.js, creating user profile page. No blocks. 
 
 Hannah: 
 
