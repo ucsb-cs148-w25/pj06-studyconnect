@@ -18,7 +18,7 @@ Anthony:
 
 Hannah: 
 
-Maria: 
+Maria: Finished hw04, was having problems getting the local app to run, is currently working on the homepage.
 
 Shelly: 
 
