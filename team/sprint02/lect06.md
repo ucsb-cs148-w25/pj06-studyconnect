@@ -12,7 +12,7 @@ Allen Hu [x] Anthony Jin [x] Hannah Su [ ] Maria Saucedo-Flores [x] Shelly Zhu [
 
 Scribed Discussion:
 
-Allen: 
+Allen: finished hw, add a new page for the new user to set up their profile. No blocks. 
 
 Anthony: 
 
