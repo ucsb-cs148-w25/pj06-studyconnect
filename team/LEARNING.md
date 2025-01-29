@@ -21,3 +21,7 @@ Zhenyu: learn Next.js and watch tutorial on Firebase </br>
 Allen: learn more Next.js, testing using Jest </br>
 Shelly: learn Google OAuth and how that works with Firebase to enable login </br>
 Hannah: watch YouTube video on learning Next.js, read up on documentation of UCSB API </br>
+
+# Interactions on js_help
+Wesley: Posted Material UI, which contains open source React components. 
+Maria: Posted a Youtube course on building a fullstack app on Next.js 
