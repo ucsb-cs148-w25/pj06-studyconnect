@@ -12,16 +12,16 @@ Allen Hu [x] Anthony Jin [x] Hannah Su [ ] Maria Saucedo-Flores [x] Shelly Zhu [
 
 Scribed Discussion:
 
-Allen: 
+Allen: finished hw, add a new page for the new user to set up their profile. No blocks. 
 
 Anthony: 
 
 Hannah: 
 
-Maria: 
+Maria: Finished hw04, was having problems getting the local app to run, is currently working on the homepage.
 
 Shelly: Finished HW. Will start working on Google OAuth. No blocks.
 
-Wesley: 
+Wesley: Finished HW & catme, did some research on how i will implement UI for Explore Classes page issue
 
 Zhenyu: finished HW, haven't made much progress on issue, but should be done by Friday before section
