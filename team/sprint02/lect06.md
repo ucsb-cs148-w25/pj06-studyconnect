@@ -24,4 +24,4 @@ Shelly:
 
 Wesley: 
 
-Zhenyu: 
+Zhenyu: finished HW, haven't made much progress on issue, but should be done by Friday before section
