@@ -22,6 +22,6 @@ Maria: Finished hw04, was having problems getting the local app to run, is curre
 
 Shelly: 
 
-Wesley: 
+Wesley: Finished HW & catme, did some research on how i will implement UI for Explore Classes page issue
 
 Zhenyu: finished HW, haven't made much progress on issue, but should be done by Friday before section
