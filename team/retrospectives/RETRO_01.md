@@ -44,4 +44,4 @@ With this visualization, it feels more clear what format the pages are going to 
 aspects were labeled as "not needed for the MVP," it also feels like we aren't piling too much work on for the 1 week we have left to implement and
 record it, and now there is a document to reference when confused, that can have specifics pointed to when asking for help from rest of team. 
 
-* A decision going forward: keep the change, revert to previous procedure, make a new change? <- not ready yet, fill this in on friday
+* A decision going forward: We've noticed that communication was definitely more active this week, and people were usually replied to within 24 hours even if the day they sent a message wasn't a day we had class. So we will be continuing to communicate on slack with emoji reactions to let people know the messages have been seen if we don't have anything to say.
