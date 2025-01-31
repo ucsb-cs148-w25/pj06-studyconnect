@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -36,7 +37,19 @@ export default function Home() {
         return;
       }
       
-      router.push('/signup');
+      const db = getFirestore();
+      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (!userData.name || !userData.grade || !userData.major) {
+          router.push('/profile');
+        } else {
+          // TODO: Redirect to the main website
+          router.push('/main-website'); // Placeholder for the main website
+        }
+      } else {
+        router.push('/profile');
+      }
     } catch (error) {
       setError('Failed to sign in. Please try again.');
       console.error(error);
