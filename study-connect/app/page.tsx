@@ -51,6 +51,10 @@ export default function Home() {
     }
   };
 
+  const navigateToExplore = () => {
+    router.push('/explore');
+  }
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
@@ -71,6 +75,13 @@ export default function Home() {
               className="w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors"
             >
               Sign Out
+            </button>
+
+            <button
+              onClick={navigateToExplore}
+              className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Explore Classes
             </button>
           </div>
         ) : (
