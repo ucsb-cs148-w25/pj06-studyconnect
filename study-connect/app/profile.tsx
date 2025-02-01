@@ -1,102 +1,71 @@
-import { useState, ChangeEvent } from "react";
+'use client';
 
-type Profile = {
-  image: string;
-  name: string;
-  grade: string;
-  major: string;
-  about: string;
-  classes: string[];
-};
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { auth } from '../lib/firebase';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<Profile>({
-    image: "/default-profile.png", // Replace with default profile image
-    name: "John Doe",
-    grade: "12th Grade",
-    major: "Computer Science",
-    about: "I am passionate about technology and innovation.",
-    classes: ["AP Calculus BC", "Physics C", "Computer Science"],
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<{ name?: string; grade?: string; major?: string; about?: string; profilePhoto?: string }>({});
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProfile((prev) => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      setLoading(false);
+      
+      if (user) {
+        const db = getFirestore();
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data());
+        }
+      }
+    });
 
-  const handleClassChange = (index: number, value: string) => {
-    const updatedClasses = [...profile.classes];
-    updatedClasses[index] = value;
-    setProfile((prev) => ({ ...prev, classes: updatedClasses }));
-  };
+    return () => unsubscribe();
+  }, []);
 
-  const addClass = () => {
-    setProfile((prev) => ({ ...prev, classes: [...prev.classes, ""] }));
-  };
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-
-    
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile((prev) => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-
-
-  };
+  if (!user) {
+    router.push('/');
+    return null;
+  }
 
   return (
-    <div className="flex flex-col items-center p-6 max-w-xl mx-auto border rounded-lg shadow-lg">
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        className="mb-4"
-      />
-      <img src={profile.image} alt="Profile" className="w-32 h-32 rounded-full object-cover mb-4" />
-      <input
-        type="text"
-        name="name"
-        value={profile.name}
-        onChange={handleChange}
-        className="border p-2 rounded w-full mb-2"
-      />
-      <input
-        type="text"
-        name="grade"
-        value={profile.grade}
-        onChange={handleChange}
-        className="border p-2 rounded w-full mb-2"
-      />
-      <input
-        type="text"
-        name="major"
-        value={profile.major}
-        onChange={handleChange}
-        className="border p-2 rounded w-full mb-2"
-      />
-      <textarea
-        name="about"
-        value={profile.about}
-        onChange={handleChange}
-        className="border p-2 rounded w-full mb-4"
-      />
-      <h2 className="text-lg font-bold mb-2">Classes Currently Enrolled In</h2>
-      {profile.classes.map((course, index) => (
-        <input
-          key={index}
-          type="text"
-          value={course}
-          onChange={(e) => handleClassChange(index, e.target.value)}
-          className="border p-2 rounded w-full mb-2"
-        />
-      ))}
-      <button onClick={addClass} className="bg-blue-500 text-white p-2 rounded mt-2">Add Class</button>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+        <div className="flex flex-col items-center space-y-4">
+          {userData.profilePhoto ? (
+            <Image
+              src={userData.profilePhoto}
+              alt="Profile Photo"
+              width={100}
+              height={100}
+              className="rounded-full border"
+            />
+          ) : (
+            <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
+              <span className="text-gray-600">No Image</span>
+            </div>
+          )}
+          <h1 className="text-2xl font-bold">{userData.name || 'User'}</h1>
+          <p className="text-gray-600">Grade: {userData.grade || 'N/A'}</p>
+          <p className="text-gray-600">Major: {userData.major || 'N/A'}</p>
+        </div>
+
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold">About Me</h2>
+          <p className="mt-2 text-gray-700">{userData.about || 'No description provided.'}</p>
+        </div>
+      </div>
     </div>
   );
 }
