@@ -346,7 +346,7 @@ export default function Home() {
           <h1 className="text-3xl font-bold text-gray-900">Class Info</h1>
           <p className="mt-2 text-gray-600">Basic class information</p>
         </div>
-        <div className="flex-grow flex flex-col justify-between overflow-auto">
+        <div className="flex-grow flex flex-col justify-between overflow-auto text-gray-600">
           {classInfo()}
         </div>
       </div>
