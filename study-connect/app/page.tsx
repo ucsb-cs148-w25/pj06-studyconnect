@@ -64,6 +64,10 @@ export default function Home() {
     }
   };
 
+  const navigateToExplore = () => {
+    router.push('/explore');
+  }
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
