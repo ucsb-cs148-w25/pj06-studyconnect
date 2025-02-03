@@ -9,6 +9,7 @@ export async function GET(
   const quarter = url.searchParams.get('quarter')
   const pageSize = url.searchParams.get('pageSize') || 10
   const subjectCode = url.searchParams.get('subjectCode')
+  const title = url.searchParams.get('title')
 
   if (!quarter) {
     return NextResponse.json({
@@ -17,19 +18,21 @@ export async function GET(
     })
   }
 
-  if (!subjectCode) {
-    return NextResponse.json({
-      status: 400,
-      message: 'Subject code is required',
-    })
-  }
-
   try {
-    const response = await fetch(`https://api.ucsb.edu/academics/curriculums/v3/classes/search?quarter=${quarter}&subjectCode=${encodeURIComponent(subjectCode)}&pageSize=${pageSize}`, {
+    let apiUrl = `https://api.ucsb.edu/academics/curriculums/v3/classes/search?quarter=${quarter}&pageSize=${pageSize}`;
+    if (subjectCode) {
+      apiUrl += `&subjectCode=${encodeURIComponent(subjectCode)}`;
+    }
+    if (title) {
+      apiUrl += `&title=${encodeURIComponent(title)}`;
+    }
+
+    const response = await fetch(apiUrl, {
       headers: {
         'ucsb-api-key': UCSB_API_KEY,
       },
     });
+
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
