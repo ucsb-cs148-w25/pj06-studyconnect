@@ -58,6 +58,17 @@ Backend:
 Clone the project: `git clone https://github.com/ucsb-cs148-w25/pj06-studyconnect.git`  
 Install dependencies: `npm install`  
 Run locally: `npm run dev`  
+Create a .env.local file in the /study-connect folder with the following environmental variables:
+- NEXT_PUBLIC_FIREBASE_API_KEY="<your_key>"
+- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="<your_key>"
+- NEXT_PUBLIC_FIREBASE_PROJECT_ID="<your_key>"
+- NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="<your_key>"
+- NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="<your_key>"
+- NEXT_PUBLIC_FIREBASE_APP_ID="<your_key>"
+- UCSB_API_KEY="<your_key>"
+
+You can get the Firebase keys by making a Firebase account and creating a new project here: [Firebase](https://firebase.google.com/)  
+You can get a UCSB API key by filling out a request form here: [UCSB API request form](https://developer.ucsb.edu/docs/applications/application-approval-request)  
 Visit site at [localhost:3000](http://localhost:3000/)
 
 # Functionality
