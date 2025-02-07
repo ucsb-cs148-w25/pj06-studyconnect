@@ -70,7 +70,7 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6">Class Forum - {selectedClassId}</h2>
+      <h2 className="text-2xl font-bold mb-6 text-black">Class Forum - {selectedClassId}</h2>
 
       {/* New Post Form */}
       <form 
@@ -101,7 +101,7 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
             type="text"
             name="title"
             placeholder="Post Title"
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md text-black placeholder-gray-500"
             required
           />
         </div>
@@ -110,7 +110,7 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
           <textarea
             name="content"
             placeholder="Write your post..."
-            className="w-full p-2 border rounded-md h-24"
+            className="w-full p-2 border rounded-md h-24 text-black placeholder-gray-500"
             required
           />
         </div>
@@ -139,8 +139,8 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
         <div className="space-y-6">
           {posts.map((post) => (
             <div key={post.id} className="border rounded-lg p-4">
-              <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-              <p className="text-gray-600 mb-4">{post.content}</p>
+              <h3 className="text-xl font-semibold mb-2 text-black">{post.title}</h3>
+              <p className="text-black mb-4">{post.content}</p>
               <div className="text-sm text-gray-500">
                 Posted by {post.authorName} • {formatDate(post.createdAt)}
               </div>
