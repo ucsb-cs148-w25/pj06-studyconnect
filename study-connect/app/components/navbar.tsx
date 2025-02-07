@@ -35,7 +35,24 @@ export const Navbar = () => {
                 setError('Please use your UCSB email address to sign in.');
                 return;
             }
+
+            // Get the ID token
+            const idToken = await result.user.getIdToken();
             
+            // Send the ID token to your backend to create a session cookie
+            const response = await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ idToken }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create session');
+            }
+            
+            // Check user profile and redirect if needed
             const db = getFirestore();
             const userDoc = await getDoc(doc(db, 'users', result.user.uid));
             if (userDoc.exists()) {
@@ -54,6 +71,8 @@ export const Navbar = () => {
 
     const handleSignOut = async () => {
         try {
+            // Clear the session cookie
+            await fetch('/api/auth/session', { method: 'DELETE' });
             await auth.signOut();
         } catch (error) {
             console.error('Error signing out:', error);
