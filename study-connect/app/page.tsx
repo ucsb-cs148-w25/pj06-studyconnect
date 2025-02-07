@@ -45,7 +45,7 @@ export default function Home() {
           router.push('/profile');
         } else {
           // TODO: Redirect to the main website
-          router.push('/main-website'); // Placeholder for the main website
+          router.push('/'); // Placeholder for the main website
         }
       } else {
         router.push('/profile');

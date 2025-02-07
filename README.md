@@ -4,12 +4,12 @@ Project Description: A webapp that helps connect college students in the same cl
 
 Full Name: Github ID
 ----------------------
-Zhenyu Yu: ZhenyuYu1 <br />
-Wesley Chiba: jeffsmithepic <br />
-Maria Saucedo-Flores: Maria-Saucedo <br />
-Shelly Zhu: zhushelly <br />
-Allen Hu: AllenHsm <br />
-Anthony Jin: jinanthony <br />
+Zhenyu Yu: ZhenyuYu1  
+Wesley Chiba: jeffsmithepic  
+Maria Saucedo-Flores: Maria-Saucedo  
+Shelly Zhu: zhushelly  
+Allen Hu: AllenHsm  
+Anthony Jin: jinanthony  
 Hannah Su: hannuhsu
 
 # Tech Stack
@@ -38,3 +38,54 @@ In the front page of the website, each user is prompted with a Firebase or Googl
  - Administrator:
    - Goal: To ensure class chats are not being misused (remove spam bots, etc)
    - Permissions: Remove users from channel, remove irrelevant content
+  
+# Installation
+
+### Prerequisites
+- Git version 2.43 or above (check using git -v)  
+- npm version 10.2 or above (check using npm -v)  
+
+### Dependencies
+Frontend: 
+- React.js and Next.js
+- Tailwind for styling
+
+Backend:
+- Database: Firebase
+- Authentication: Firebase / Google OAuth
+
+### Installation Steps
+Clone the project: `git clone https://github.com/ucsb-cs148-w25/pj06-studyconnect.git`  
+Install dependencies: `npm install`  
+Run locally: `npm run dev`  
+Create a .env.local file in the /study-connect folder with the following environmental variables:
+- NEXT_PUBLIC_FIREBASE_API_KEY="<your_key>"
+- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="<your_key>"
+- NEXT_PUBLIC_FIREBASE_PROJECT_ID="<your_key>"
+- NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="<your_key>"
+- NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="<your_key>"
+- NEXT_PUBLIC_FIREBASE_APP_ID="<your_key>"
+- UCSB_API_KEY="<your_key>"
+
+You can get the Firebase keys by making a Firebase account and creating a new project here: [Firebase](https://firebase.google.com/)  
+You can get a UCSB API key by filling out a request form here: [UCSB API request form](https://developer.ucsb.edu/docs/applications/application-approval-request)  
+Visit site at [localhost:3000](http://localhost:3000/)
+
+# Functionality
+1. Login using your @ucsb.edu email and fill out your profile page.
+2. View courses in the courses page found on the right side of the header
+3. Search courses by subject code or course name
+
+# Known Problems
+1. Saving profile details (name, year, major) not yet implemented
+2. Saving selected courses not yet implemented
+
+# Contributing
+1. Fork it!
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+5. Submit a pull request :D
+
+# License
+MIT License
