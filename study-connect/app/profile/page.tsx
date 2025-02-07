@@ -11,7 +11,8 @@ export default function Profile() {
         email: '',
         grade: '',
         major: '',
-        minor: ''
+        minor: '',
+        joinedClasses: []
     });
     const [loading, setLoading] = useState(true);
     const db = getFirestore();
@@ -41,7 +42,8 @@ export default function Profile() {
                 email: formData.email,
                 grade: formData.grade,
                 major: formData.major,
-                minor: formData.minor
+                minor: formData.minor,
+                joinedClasses: []
             });
         }
         router.push('/');
