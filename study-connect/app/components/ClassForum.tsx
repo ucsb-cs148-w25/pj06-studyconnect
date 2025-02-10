@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPost } from '../actions/postActions';
+import Link from 'next/link';
 
 interface Post {
   id: string;
@@ -138,12 +139,16 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
       ) : (
         <div className="space-y-6">
           {posts.map((post) => (
-            <div key={post.id} className="border rounded-lg p-4">
-              <h3 className="text-xl font-semibold mb-2 text-black">{post.title}</h3>
-              <p className="text-black mb-4">{post.content}</p>
-              <div className="text-sm text-gray-500">
-                Posted by {post.authorName} • {formatDate(post.createdAt)}
-              </div>
+            <div key={post.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+              <Link href={`/posts/${post.id}`}>
+                <h3 className="text-xl font-semibold mb-2 text-black hover:text-blue-600">
+                  {post.title}
+                </h3>
+                <p className="text-black mb-4">{post.content}</p>
+                <div className="text-sm text-gray-500">
+                  Posted by {post.authorName} • {formatDate(post.createdAt)}
+                </div>
+              </Link>
             </div>
           ))}
         </div>
