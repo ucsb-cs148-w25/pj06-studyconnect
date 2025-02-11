@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { postId: string } }
 ) {
   try {
-    const postId = params.postId;
+    const { postId } = await params;
     const postDoc = await db.collection('posts').doc(postId).get();
 
     if (!postDoc.exists) {
