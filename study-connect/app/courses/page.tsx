@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
-import { SUBJECTCODES, QUARTERMAP } from "../utils/coursesInfo";
+import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
@@ -37,10 +37,15 @@ type TimeLocation = {
   endTime: string
 }
 
+interface JoinedClass {
+  courseId: string;
+  courseTitle?: string;
+}
+
 interface User {
-  email: string;
-  name: string;
   joinedClasses: string[];
+  name: string;
+  email: string;
 }
 
 
@@ -50,29 +55,6 @@ export default function Home() {
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-    
-  useEffect(() => {
-    const fetchUser = async (userId: string) => {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        setUser(userDoc.data() as User);
-      } else {
-        console.log("No such document!");
-      }
-    };
-
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUserId(currentUser.uid);
-        fetchUser(currentUser.uid);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const defaultClass: Class = {
     courseId: 'No Class',
@@ -86,38 +68,12 @@ export default function Home() {
   const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
   const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
+  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
 
   const [classesLoading, setClassesLoading] = useState<boolean>(false);
   const [classesError, setClassesError] = useState<boolean>(false);
 
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  const handleSelectedNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedName(event.target.value);
-    fetchClassesByName(event.target.value);
-  }
-
-  const handleSelectedSubjectCode = (event: SelectChangeEvent<string>) => {
-    setSelectedSubjectCode(event.target.value);
-    fetchClassesBySubjectCode(event.target.value);
-  }
-
-  const handleSearchTypeChange = (event: SelectChangeEvent<string>) => {
-    setSelectedSearchType(event.target.value);
-    if (event.target.value === 'name') {
-      fetchClassesByName(selectedName);
-    } else if (event.target.value === 'subjectCode') {
-      fetchClassesBySubjectCode(selectedSubjectCode);
-    }
-  }
-
-  const handleCardClick = (obj: Class) => {
-    setSelectedClass(obj);
-  }
 
   const fetchClasses = async (response: any) => {
     let currLeadInstructors: Instructor[] = [];
@@ -199,6 +155,85 @@ export default function Home() {
       setLoading(false);
     }
   };
+    
+  useEffect(() => {
+    const fetchUser = async (userId: string) => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        setUser(userData);
+        const classObjects = userData.joinedClasses.map(classId => ({
+          courseId: classId,
+        }));
+        const sortedClasses = classObjects.sort((a, b) => {
+          const regex = /^([A-Za-z]+)\s*(\d+)$/;
+          const matchA = a.courseId.match(regex);
+          const matchB = b.courseId.match(regex);
+        
+          if (!matchA || !matchB) {
+            return a.courseId.localeCompare(b.courseId);
+          }
+        
+          const deptA = matchA[1];
+          const deptB = matchB[1];
+          const numA = parseInt(matchA[2], 10);
+          const numB = parseInt(matchB[2], 10);
+        
+          if (deptA !== deptB) {
+            return deptA.localeCompare(deptB);
+          }
+          return numA - numB;
+        });
+        setJoinedClasses(sortedClasses);
+      } else {
+        console.log("No such document!");
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUserId(currentUser.uid);
+        fetchUser(currentUser.uid);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    fetchClassesBySubjectCode(selectedSubjectCode)
+    fetchClassesByName(selectedName)
+    
+    return () => unsubscribe();
+  }, [selectedQuarter]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  const handleSelectedNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedName(event.target.value);
+    fetchClassesByName(event.target.value);
+  }
+
+  const handleSelectedSubjectCode = (event: SelectChangeEvent<string>) => {
+    setSelectedSubjectCode(event.target.value);
+    fetchClassesBySubjectCode(event.target.value);
+  }
+
+  const handleSearchTypeChange = (event: SelectChangeEvent<string>) => {
+    setSelectedSearchType(event.target.value);
+    if (event.target.value === 'name') {
+      fetchClassesByName(selectedName);
+      setSelectedSubjectCode('');
+    } else if (event.target.value === 'subjectCode') {
+      fetchClassesBySubjectCode(selectedSubjectCode);
+      setSelectedName('');
+    }
+  }
+
+  const handleCardClick = (obj: Class) => {
+    setSelectedClass(obj);
+  }
 
   const searchOption = () => {
     if (selectedSearchType === 'name') {
@@ -249,7 +284,7 @@ export default function Home() {
           <Card
             key={classObj.courseId}
             onClick={() => handleCardClick(classObj)}
-            style={{ cursor: 'pointer', border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none' }}
+            style={{ cursor: 'pointer', border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none', backgroundColor: user && user.joinedClasses.some((cls) => cls === classObj.courseId) ? 'lightgreen' : 'white' }}
           >
             <CardContent>
               <Typography variant="h6" component="div" style={{ fontSize: '1.0rem' }}>
@@ -380,19 +415,27 @@ export default function Home() {
     );
   }
 
-  const test = () => {
-    if (!user) {
-      return <p>No user found</p>
-    }
-    return <p>{user.name}</p>
-  }
-
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
       {/* left panel */}
-      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen">
+      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Explore Classes for {QUARTERMAP[selectedQuarter.slice(4) as keyof typeof QUARTERMAP]} {selectedQuarter.slice(0, 4)}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Explore Classes for 
+            <select
+              className="bg-white text-gray-900 font-semibold ml-2"
+              value={selectedQuarter.slice(4)}
+              onChange={(e) => {
+                console.log(e.target.value)
+                setSelectedQuarter("2025"+e.target.value)
+              }}
+            >
+              {Object.keys(QUARTERMAP).map((quarter) => (
+                <option key={quarter} value={quarter}>
+                  {QUARTERMAP[quarter as keyof typeof QUARTERMAP]} 2025
+                </option>
+              ))}
+            </select>
+          </h1>
           <p className="mt-2 text-gray-600">Search for classes to join</p>
         </div>
         <div className="flex-grow flex flex-col justify-between overflow-auto">
@@ -416,8 +459,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+  
       {/* right panel */}
-      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen">
+      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto sticky top-0 h-1">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Class Info</h1>
           <p className="mt-2 text-gray-600">Basic class information</p>
@@ -425,12 +469,7 @@ export default function Home() {
         <div className="flex-grow flex flex-col justify-between overflow-auto text-gray-600">
           {classInfo()}
         </div>
-        <div>
-          {test()}  
-        </div>
       </div>
     </div>
-  );
-  
-  
+  );  
 }

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../lib/firebase';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { SUBJECTCODES } from '../utils/coursesInfo';
+import { MAJORS, MINORS } from '../utils/consts';
 
 export default function Profile() {
     const router = useRouter();
@@ -154,8 +154,9 @@ export default function Profile() {
                         >
 
                             <option value="" disabled>Select your major</option>
-                            {SUBJECTCODES.map((subjectCode) => 
-                                <option key={subjectCode} value={subjectCode}>{subjectCode}</option>
+                            <option value="Undeclared">Undeclared</option>
+                            {MAJORS.map((major) => 
+                                <option key={major} value={major}>{major}</option>
                             )}
                         </select>
                     </div>
@@ -173,8 +174,9 @@ export default function Profile() {
                         >
 
                             <option value="" disabled>Select your minor</option>
-                            {SUBJECTCODES.map((subjectCode) => 
-                                <option key={subjectCode} value={subjectCode}>{subjectCode}</option>
+                            <option value=""></option>
+                            {MINORS.map((minor) => 
+                                <option key={minor} value={minor}>{minor}</option>
                             )}
                         </select>
                     </div>

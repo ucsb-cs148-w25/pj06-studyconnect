@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { SUBJECTCODES } from '../utils/coursesInfo';
+import { SUBJECTCODES } from '../utils/consts';
 
 type Class = {
   courseId: string;

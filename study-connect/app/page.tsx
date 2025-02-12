@@ -14,7 +14,7 @@ export default function Home() {
       {/* Main content */}
       <div className="flex-1 p-8">
         {selectedClassId ? (
-          <ClassForum selectedClassId={selectedClassId} />
+          <ClassForum selectedClassId={selectedClassId} setSelectedClassId={setSelectedClassId} />
         ) : (
           <div className="max-w-4xl text-center space-y-8">
             <h1 className="text-4xl font-bold text-gray-900">Welcome to Study Connect</h1>

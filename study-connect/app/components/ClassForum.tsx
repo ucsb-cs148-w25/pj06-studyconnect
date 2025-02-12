@@ -18,9 +18,10 @@ interface Post {
 
 interface ClassForumProps {
   selectedClassId: string;
+  setSelectedClassId: (classId: string | null) => void;
 }
 
-export default function ClassForum({ selectedClassId }: ClassForumProps) {
+export default function ClassForum({ selectedClassId, setSelectedClassId }: ClassForumProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +71,15 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6 text-black">Class Forum - {selectedClassId}</h2>
-
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-black">Class Forum - {selectedClassId}</h2>
+        <button 
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md shadow-sm hover:bg-gray-400 transition"
+          onClick={() => setSelectedClassId(null)}
+        >
+          ← Back to Home
+        </button>
+      </div>
       {/* New Post Form */}
       <form 
         action={async (formData) => {

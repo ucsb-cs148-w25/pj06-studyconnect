@@ -15,7 +15,7 @@ interface User {
 }
 
 interface ClassesSidebarProps {
-  onClassSelectAction: (classId: string) => void;
+  onClassSelectAction: (classId: string | null) => void;
 }
 
 export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarProps) {
@@ -33,7 +33,26 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
           const classObjects = userData.joinedClasses.map(classId => ({
             courseId: classId,
           }));
-          setJoinedClasses(classObjects);
+          const sortedClasses = classObjects.sort((a, b) => {
+            const regex = /^([A-Za-z]+)\s*(\d+)$/;
+            const matchA = a.courseId.match(regex);
+            const matchB = b.courseId.match(regex);
+          
+            if (!matchA || !matchB) {
+              return a.courseId.localeCompare(b.courseId);
+            }
+          
+            const deptA = matchA[1];
+            const deptB = matchB[1];
+            const numA = parseInt(matchA[2], 10);
+            const numB = parseInt(matchB[2], 10);
+          
+            if (deptA !== deptB) {
+              return deptA.localeCompare(deptB);
+            }
+            return numA - numB;
+          });
+          setJoinedClasses(sortedClasses);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -69,7 +88,7 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
           <p className="text-gray-600 text-sm">No classes joined yet</p>
         ) : (
           <ul className="space-y-2">
-            {joinedClasses.map((class_) => (
+            {joinedClasses.sort().map((class_) => (
               <li
                 key={class_.courseId}
                 className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
