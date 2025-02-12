@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+import { SUBJECTCODES, QUARTERMAP } from "../utils/coursesInfo";
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
@@ -42,7 +43,6 @@ interface User {
   joinedClasses: string[];
 }
 
-const SUBJECTCODES = ["ANTH", "ART", "ART  CS", "ARTHI", "ARTST", "AS AM", "ASTRO", "BIOE", "BIOL", "BIOL CS", "BL ST", "CH E", "CHEM CS", "CHEM", "CH ST", "CHIN", "CLASS", "COMM", "C LIT", "CMPSC", "CMPSCCS", "CMPTG", "CMPTGCS", "CNCSP", "DANCE", "DYNS", "EARTH", "EACS", "EEMB", "ECON", "ED", "ECE", "ENGR", "ENGL", "EDS", "ESM", "ENV S", "ESS", "ES   1-", "FEMST", "FAMST", "FR", "GEN S", "GEN SCS", "GEOG", "GER", "GPS", "GLOBL", "GRAD", "GREEK", "HEB", "HIST", "IQB", "INT", "INT  CS", "ITAL", "JAPAN", "KOR", "LATIN", "LAIS", "LING", "LIT", "LIT CS", "MARSC", "MARIN", "MARINCS", "MATRL", "MATH", "MATH CS", "ME", "MAT", "ME ST", "MES", "MS", "MCDB", "MUS", "MUS  CS", "MUS A", "PHIL", "PHYS", "PHYS CS", "POL S", "PORT", "PSY", "RG ST", "RENST", "RUSS", "SLAV", "SOC", "SPAN", "SHS", "PSTAT", "TMP", "THTR", "WRIT", "W&L CSW", "W&L", "W&L  CS"];
 
 export default function Home() {
   const [error, setError] = useState<string>('');
@@ -83,6 +83,7 @@ export default function Home() {
 
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
   const [selectedName, setSelectedName] = useState<string>('');
+  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
   const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
 
@@ -167,7 +168,7 @@ export default function Home() {
     setClassesLoading(true);
     setClassesError(false);
     try {
-      const response = await fetch(`/api/classes/?quarter=20252&title=${encodeURIComponent(name)}&pageSize=100`);
+      const response = await fetch(`/api/classes/?quarter=${selectedQuarter}&title=${encodeURIComponent(name)}&pageSize=100`);
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
       let classes: Class[] = await fetchClasses(data);
@@ -187,7 +188,7 @@ export default function Home() {
     setClassesLoading(true);
     setClassesError(false);
     try {
-      const response = await fetch(`/api/classes?quarter=20252&subjectCode=${encodeURIComponent(subjectCode)}&pageSize=100`);
+      const response = await fetch(`/api/classes?quarter=${selectedQuarter}&subjectCode=${encodeURIComponent(subjectCode)}&pageSize=100`);
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
       const classes: Class[] = await fetchClasses(data);
@@ -391,7 +392,7 @@ export default function Home() {
       {/* left panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Explore Classes</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Explore Classes for {QUARTERMAP[selectedQuarter.slice(4) as keyof typeof QUARTERMAP]} {selectedQuarter.slice(0, 4)}</h1>
           <p className="mt-2 text-gray-600">Search for classes to join</p>
         </div>
         <div className="flex-grow flex flex-col justify-between overflow-auto">

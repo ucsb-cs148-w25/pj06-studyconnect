@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../lib/firebase';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { SUBJECTCODES } from '../utils/coursesInfo';
 
 export default function Profile() {
     const router = useRouter();
@@ -129,29 +130,39 @@ export default function Profile() {
                         <label htmlFor="major" className="block text-sm font-medium text-gray-700">
                             Major
                         </label>
-                        <input
-                            type="text"
+                        <select
                             id="major"
                             name="major"
                             required
                             value={formData.major}
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700"
-                        />
+                        >
+
+                            <option value="" disabled>Select your major</option>
+                            {SUBJECTCODES.map((subjectCode) => 
+                                <option key={subjectCode} value={subjectCode}>{subjectCode}</option>
+                            )}
+                        </select>
                     </div>
 
                     <div>
                         <label htmlFor="minor" className="block text-sm font-medium text-gray-700">
                             Minor (Optional)
                         </label>
-                        <input
-                            type="text"
+                        <select
                             id="minor"
                             name="minor"
                             value={formData.minor}
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700"
-                        />
+                        >
+
+                            <option value="" disabled>Select your minor</option>
+                            {SUBJECTCODES.map((subjectCode) => 
+                                <option key={subjectCode} value={subjectCode}>{subjectCode}</option>
+                            )}
+                        </select>
                     </div>
 
                     <button

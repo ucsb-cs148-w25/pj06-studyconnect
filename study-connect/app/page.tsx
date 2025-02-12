@@ -82,7 +82,7 @@ export default function Home() {
 
         {user ? (
           <div className="space-y-4">
-            <p className="text-center text-gray-700">Welcome, {user.email}</p>
+            <p className="text-center text-gray-700">Welcome, {user.displayName}</p>
             <button
               onClick={handleSignOut}
               className="w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors"
