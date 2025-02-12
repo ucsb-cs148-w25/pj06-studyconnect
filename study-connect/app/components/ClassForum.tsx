@@ -21,9 +21,10 @@ interface Post {
 
 interface ClassForumProps {
   selectedClassId: string;
+  onCloseAction: () => void;
 }
 
-export default function ClassForum({ selectedClassId }: ClassForumProps) {
+export default function ClassForum({ selectedClassId, onCloseAction }: ClassForumProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +74,28 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6 text-black">Class Forum - {selectedClassId}</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-black">Class Forum - {selectedClassId}</h2>
+        <button
+          onClick={onCloseAction}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          aria-label="Close forum"
+        >
+          <svg
+            className="w-6 h-6 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
 
       {/* New Post Form */}
       <form 
