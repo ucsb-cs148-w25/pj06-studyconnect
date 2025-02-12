@@ -19,20 +19,34 @@ export default function Profile() {
     const db = getFirestore();
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 router.push('/');
             } else {
-                setFormData(prev => ({
-                    ...prev,
-                    email: user.email || ''
-                }));
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setFormData({
+                        name: userData.name || '',
+                        email: user.email || '',
+                        grade: userData.grade || '',
+                        major: userData.major || '',
+                        minor: userData.minor || '',
+                        joinedClasses: userData.joinedClasses || []
+                    });
+                } else {
+                    setFormData(prev => ({
+                        ...prev,
+                        email: user.email || '',
+                        joinedClasses: []
+                    }));
+                }
                 setLoading(false);
             }
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, db]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,7 +58,7 @@ export default function Profile() {
                 grade: formData.grade,
                 major: formData.major,
                 minor: formData.minor,
-                joinedClasses: []
+                joinedClasses: formData.joinedClasses.length ? formData.joinedClasses : []
             });
         }
         router.push('/');
