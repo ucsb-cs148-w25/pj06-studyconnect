@@ -1,11 +1,11 @@
 'use client';
 import Image from "next/image";
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { SUBJECTCODES } from "../classes/page";
+import { useState, useEffect } from 'react';
+import { db } from '../../lib/firebase';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
@@ -36,13 +36,43 @@ type TimeLocation = {
   endTime: string
 }
 
+interface User {
+  email: string;
+  name: string;
+  joinedClasses: string[];
+}
+
+const SUBJECTCODES = ["ANTH", "ART", "ART  CS", "ARTHI", "ARTST", "AS AM", "ASTRO", "BIOE", "BIOL", "BIOL CS", "BL ST", "CH E", "CHEM CS", "CHEM", "CH ST", "CHIN", "CLASS", "COMM", "C LIT", "CMPSC", "CMPSCCS", "CMPTG", "CMPTGCS", "CNCSP", "DANCE", "DYNS", "EARTH", "EACS", "EEMB", "ECON", "ED", "ECE", "ENGR", "ENGL", "EDS", "ESM", "ENV S", "ESS", "ES   1-", "FEMST", "FAMST", "FR", "GEN S", "GEN SCS", "GEOG", "GER", "GPS", "GLOBL", "GRAD", "GREEK", "HEB", "HIST", "IQB", "INT", "INT  CS", "ITAL", "JAPAN", "KOR", "LATIN", "LAIS", "LING", "LIT", "LIT CS", "MARSC", "MARIN", "MARINCS", "MATRL", "MATH", "MATH CS", "ME", "MAT", "ME ST", "MES", "MS", "MCDB", "MUS", "MUS  CS", "MUS A", "PHIL", "PHYS", "PHYS CS", "POL S", "PORT", "PSY", "RG ST", "RENST", "RUSS", "SLAV", "SOC", "SPAN", "SHS", "PSTAT", "TMP", "THTR", "WRIT", "W&L CSW", "W&L", "W&L  CS"];
+
 export default function Home() {
   const [error, setError] = useState<string>('');
   const [user, setUser] = useState<User | null>(null); // Replace `any` with `User | null`
+  const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+    
+  useEffect(() => {
+    const fetchUser = async (userId: string) => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        setUser(userDoc.data() as User);
+      } else {
+        console.log("No such document!");
+      }
+    };
 
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUserId(currentUser.uid);
+        fetchUser(currentUser.uid);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
 
+    return () => unsubscribe();
+  }, []);
 
   const defaultClass: Class = {
     courseId: 'No Class',
@@ -59,18 +89,7 @@ export default function Home() {
   const [classesLoading, setClassesLoading] = useState<boolean>(false);
   const [classesError, setClassesError] = useState<boolean>(false);
 
-  const [joinedClasses, setJoinedClasses] = useState<Class[]>([]);
-
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -102,7 +121,6 @@ export default function Home() {
   const fetchClasses = async (response: any) => {
     let currLeadInstructors: Instructor[] = [];
     const data = response.classes;
-    console.log(data);
     const newClasses = data.map((cls: any) => {
       let courseDetails: { instructor: Instructor; timeLocation: TimeLocation[] }[] = [];
 
@@ -150,7 +168,6 @@ export default function Home() {
     setClassesError(false);
     try {
       const response = await fetch(`/api/classes/?quarter=20252&title=${encodeURIComponent(name)}&pageSize=100`);
-      console.log(response);
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
       let classes: Class[] = await fetchClasses(data);
@@ -275,11 +292,37 @@ export default function Home() {
         </div>
       );
     }
-    const isJoined = joinedClasses.some((cls) => cls.courseId === selectedClass.courseId);
+    let isJoined = false;
+    if (user) {
+      isJoined = user.joinedClasses.some((cls) => cls === selectedClass.courseId);
+    }
     const joinButton = (
       <Button
-        onClick={() => {
-          setJoinedClasses([...joinedClasses, selectedClass]);
+        onClick={async () => {
+          if (user) {
+            try {
+              const userRef = doc(db, "users", userId);
+              const userDoc = await getDoc(userRef);
+              console.log(userDoc);
+              if (userDoc.exists()) {
+                console.log("User exists");
+                await updateDoc(userRef, {
+                  joinedClasses: arrayUnion(selectedClass.courseId)
+                });
+              } else {
+                await setDoc(userRef, {
+                  joinedClasses: [selectedClass.courseId]
+                });
+              }
+    
+              setUser({
+                ...user,
+                joinedClasses: [...user.joinedClasses, selectedClass.courseId]
+              });
+            } catch (error) {
+              console.error("Error updating document: ", error);
+            }
+          }
         }}
         variant="contained"
         color="primary"
@@ -290,8 +333,33 @@ export default function Home() {
     )
     const leaveButton = (
       <Button
-        onClick={() => {
-          setJoinedClasses(joinedClasses.filter((cls) => cls.courseId !== selectedClass.courseId));
+        onClick={async () => {
+          if (user) {
+            try {
+              const userRef = doc(db, "users", userId);
+              const userDoc = await getDoc(userRef);
+    
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (userData && userData.joinedClasses) {
+                  await updateDoc(userRef, {
+                    joinedClasses: arrayRemove(selectedClass.courseId)
+                  });
+                } else {
+                  console.log("No joinedClasses field to remove from");
+                }
+    
+                setUser({
+                  ...user,
+                  joinedClasses: user.joinedClasses.filter((cls) => cls !== selectedClass.courseId)
+                });
+              } else {
+                console.log("No such document!");
+              }
+            } catch (error) {
+              console.error("Error updating document: ", error);
+            }
+          }
         }}
         variant="contained"
         color="error"
@@ -309,6 +377,13 @@ export default function Home() {
         </Box>
       </div>
     );
+  }
+
+  const test = () => {
+    if (!user) {
+      return <p>No user found</p>
+    }
+    return <p>{user.name}</p>
   }
 
   return (
@@ -348,6 +423,9 @@ export default function Home() {
         </div>
         <div className="flex-grow flex flex-col justify-between overflow-auto text-gray-600">
           {classInfo()}
+        </div>
+        <div>
+          {test()}  
         </div>
       </div>
     </div>
