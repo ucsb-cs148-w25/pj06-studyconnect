@@ -38,6 +38,8 @@ export async function GET(
       authorId: data?.authorId,
       authorName: data?.authorName,
       classId: data?.classId,
+      likes: data?.likes || 0,
+      likedBy: data?.likedBy || [],
       createdAt: {
         _seconds: data?.createdAt?._seconds || data?.createdAt?.seconds || 0,
         _nanoseconds: data?.createdAt?._nanoseconds || data?.createdAt?.nanoseconds || 0
@@ -92,6 +94,62 @@ export async function POST(
     });
   } catch (error) {
     console.error('Error creating comment:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Add new PUT endpoint for handling likes
+export async function PUT(
+  request: Request,
+  { params }: { params: { postId: string } }
+) {
+  try {
+    const { postId } = await params;
+    const { userId } = await request.json();
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const postRef = db.collection('posts').doc(postId);
+    const postDoc = await postRef.get();
+    const postData = postDoc.data();
+
+    if (!postDoc.exists) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    const likedBy = postData?.likedBy || [];
+    const isLiked = likedBy.includes(userId);
+
+    // Toggle like
+    if (isLiked) {
+      await postRef.update({
+        likes: (postData?.likes || 0) - 1,
+        likedBy: likedBy.filter((id: string) => id !== userId)
+      });
+    } else {
+      await postRef.update({
+        likes: (postData?.likes || 0) + 1,
+        likedBy: [...likedBy, userId]
+      });
+    }
+
+    const updatedDoc = await postRef.get();
+    const updatedData = updatedDoc.data();
+
+    return NextResponse.json({
+      likes: updatedData?.likes || 0,
+      likedBy: updatedData?.likedBy || []
+    });
+  } catch (error) {
+    console.error('Error updating likes:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

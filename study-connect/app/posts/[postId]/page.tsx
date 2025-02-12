@@ -29,6 +29,8 @@ interface Post {
     _seconds: number;
     _nanoseconds: number;
   };
+  likes: number;
+  likedBy: string[];
 }
 
 export default function PostPage({ params }: { params: Promise<{ postId: string }> }) {
@@ -105,6 +107,34 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
     }
   };
 
+  const handleLike = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update like');
+
+      const data = await response.json();
+      setPost(prev => prev ? {
+        ...prev,
+        likes: data.likes,
+        likedBy: data.likedBy
+      } : null);
+    } catch (err) {
+      console.error('Error updating like:', err);
+      alert('Failed to update like. Please try again.');
+    }
+  };
+
   const formatDate = (timestamp: { _seconds: number; _nanoseconds: number }) => {
     if (!timestamp) return '';
     const date = new Date(timestamp._seconds * 1000);
@@ -149,7 +179,7 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to Class Forum
+          Back
         </Link>
         
         <article className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
@@ -168,6 +198,38 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
               <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
                 {post.content}
               </p>
+            </div>
+
+            <div className="mt-6 flex items-center space-x-4">
+              <button
+                onClick={handleLike}
+                disabled={!user}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                  user && post.likedBy.includes(user.uid)
+                    ? 'bg-red-100 text-red-600'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill={user && post.likedBy.includes(user.uid) ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+                <span>{post.likes} {post.likes === 1 ? 'Like' : 'Likes'}</span>
+              </button>
+              {!user && (
+                <span className="text-sm text-gray-500">
+                  Sign in to like this post
+                </span>
+              )}
             </div>
           </div>
         </article>
