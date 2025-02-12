@@ -133,6 +133,7 @@ export default function Home() {
       setError(`Failed to load classes for name '${name}'`);
     } finally {
       setLoading(false);
+      setClassesLoading(false);
     }
   }
 
@@ -153,6 +154,7 @@ export default function Home() {
       setError(`Failed to load classes for subjectCode '${subjectCode}'`);
     } finally {
       setLoading(false);
+      setClassesLoading(false);
     }
   };
     
@@ -271,7 +273,7 @@ export default function Home() {
   }
 
   const filteredClassesGrid = () => {
-    if (displayedClasses.length === 0) {
+    if (displayedClasses.length === 0 && !loading && !classesLoading) {
       return (
         <div>
           <p>No classes found!</p>
@@ -425,7 +427,6 @@ export default function Home() {
               className="bg-white text-gray-900 font-semibold ml-2"
               value={selectedQuarter.slice(4)}
               onChange={(e) => {
-                console.log(e.target.value)
                 setSelectedQuarter("2025"+e.target.value)
               }}
             >
