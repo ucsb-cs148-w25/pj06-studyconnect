@@ -7,10 +7,12 @@ import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
+import ClassesSidebar from '../components/ClassesSidebar'
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
-  Card, CardContent, Typography, Box, Button
+  Card, CardContent, Typography, Box, Button,
+  selectClasses
 } from '@mui/material';
 
 type Class = {
@@ -67,6 +69,7 @@ export default function Home() {
   const [selectedName, setSelectedName] = useState<string>('');
   const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
   const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
   const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
 
@@ -419,6 +422,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
+      <ClassesSidebar onClassSelectAction={setSelectedClassId} />
       {/* left panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">

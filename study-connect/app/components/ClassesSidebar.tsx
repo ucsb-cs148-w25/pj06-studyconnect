@@ -70,10 +70,10 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [joinedClasses]);
 
   return (
-    <div className="w-64 bg-white shadow-md">
+    <div className="w-64 bg-white shadow-md sticky top-0 h-1">
       <div className="p-4 border-b">
         <h2 className="text-lg font-semibold text-gray-800">My Classes</h2>
       </div>
