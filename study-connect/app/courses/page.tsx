@@ -8,48 +8,13 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
 import ClassesSidebar from '../components/ClassesSidebar'
+import { User, Class, Instructor, TimeLocation, JoinedClass } from '../utils/interfaces';
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
   Card, CardContent, Typography, Box, Button,
   selectClasses
 } from '@mui/material';
-
-type Class = {
-  courseId: string;
-  courseTitle: string;
-  courseDescription: string;
-  courseDetails: {
-    instructor: Instructor; // if 2 instructors, joined by &
-    timeLocation: TimeLocation[];
-  }[]
-}
-
-type Instructor = {
-  name: string;
-  functionCode: string;
-}
-
-type TimeLocation = {
-  room: string;
-  building: string;
-  roomCapacity: number;
-  days: string;
-  beginTime: string;
-  endTime: string
-}
-
-interface JoinedClass {
-  courseId: string;
-  courseTitle?: string;
-}
-
-interface User {
-  joinedClasses: string[];
-  name: string;
-  email: string;
-}
-
 
 export default function Home() {
   const [error, setError] = useState<string>('');

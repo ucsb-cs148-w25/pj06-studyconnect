@@ -1,8 +1,10 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '../../lib/firebase';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { auth } from '../../../lib/firebase';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { MAJORS, MINORS } from '../../utils/consts';
+import { User } from '../../utils/interfaces';
 
 export default function Profile() {
     const router = useRouter();
@@ -11,26 +13,41 @@ export default function Profile() {
         email: '',
         grade: '',
         major: '',
-        minor: ''
+        minor: '',
+        joinedClasses: []
     });
     const [loading, setLoading] = useState(true);
     const db = getFirestore();
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 router.push('/');
             } else {
-                setFormData(prev => ({
-                    ...prev,
-                    email: user.email || ''
-                }));
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setFormData({
+                        name: userData.name || '',
+                        email: user.email || '',
+                        grade: userData.grade || '',
+                        major: userData.major || '',
+                        minor: userData.minor || '',
+                        joinedClasses: userData.joinedClasses || []
+                    });
+                } else {
+                    setFormData(prev => ({
+                        ...prev,
+                        email: user.email || '',
+                        joinedClasses: []
+                    }));
+                }
                 setLoading(false);
             }
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, db]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,7 +58,8 @@ export default function Profile() {
                 email: formData.email,
                 grade: formData.grade,
                 major: formData.major,
-                minor: formData.minor
+                minor: formData.minor,
+                joinedClasses: formData.joinedClasses.length ? formData.joinedClasses : []
             });
         }
         router.push('/');
@@ -127,29 +145,41 @@ export default function Profile() {
                         <label htmlFor="major" className="block text-sm font-medium text-gray-700">
                             Major
                         </label>
-                        <input
-                            type="text"
+                        <select
                             id="major"
                             name="major"
                             required
                             value={formData.major}
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700"
-                        />
+                        >
+
+                            <option value="" disabled>Select your major</option>
+                            <option value="Undeclared">Undeclared</option>
+                            {MAJORS.map((major) => 
+                                <option key={major} value={major}>{major}</option>
+                            )}
+                        </select>
                     </div>
 
                     <div>
                         <label htmlFor="minor" className="block text-sm font-medium text-gray-700">
                             Minor (Optional)
                         </label>
-                        <input
-                            type="text"
+                        <select
                             id="minor"
                             name="minor"
                             value={formData.minor}
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700"
-                        />
+                        >
+
+                            <option value="" disabled>Select your minor</option>
+                            <option value=""></option>
+                            {MINORS.map((minor) => 
+                                <option key={minor} value={minor}>{minor}</option>
+                            )}
+                        </select>
                     </div>
 
                     <button

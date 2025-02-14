@@ -139,4 +139,4 @@ export const MINORS: string[] = [
     "Theater",
     "Theater Production and Design",
     "Translation Studies"
-  ];
+];

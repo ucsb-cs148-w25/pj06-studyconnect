@@ -2,17 +2,7 @@
 import { useEffect, useState } from 'react';
 import { auth, db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-
-interface JoinedClass {
-  courseId: string;
-  courseTitle?: string;
-}
-
-interface User {
-  joinedClasses: string[];
-  name: string;
-  email: string;
-}
+import { User, JoinedClass } from '../utils/interfaces';
 
 interface ClassesSidebarProps {
   onClassSelectAction: (classId: string | null) => void;
