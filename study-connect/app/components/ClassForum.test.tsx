@@ -7,7 +7,30 @@ import { createPost, fetchPosts } from '../actions/postActions';
 // Mock the createPost and fetchPosts functions
 jest.mock('../actions/postActions', () => ({
   createPost: jest.fn(),
-  fetchPosts: jest.fn(),
+  fetchPosts: jest.fn().mockResolvedValue([
+    {
+      id: '1',
+      title: 'First Post',
+      content: 'This is the first post',
+      authorId: 'user1',
+      authorName: 'User One',
+      classId: 'class1',
+      createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
+      likes: 0,
+      likedBy: [],
+    },
+    {
+      id: '2',
+      title: 'Second Post',
+      content: 'This is the second post',
+      authorId: 'user2',
+      authorName: 'User Two',
+      classId: 'class1',
+      createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
+      likes: 0,
+      likedBy: [],
+    },
+  ]),
 }));
 
 // Mock the useRouter hook
@@ -48,7 +71,7 @@ describe('ClassForum Component', () => {
 
   test('renders ClassForum component', async () => {
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" />);
+      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
     expect(screen.getByText('Class Forum - class1')).toBeInTheDocument();
   });
@@ -57,7 +80,7 @@ describe('ClassForum Component', () => {
     (fetchPosts as jest.Mock).mockResolvedValue(mockPosts);
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" />);
+      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
     await waitFor(() => expect(screen.getByText('First Post')).toBeInTheDocument());
     expect(screen.getByText('Second Post')).toBeInTheDocument();
@@ -67,7 +90,7 @@ describe('ClassForum Component', () => {
     (fetchPosts as jest.Mock).mockRejectedValue(new Error('Failed to fetch posts'));
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" />);
+      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
     await waitFor(() => expect(screen.getByText('Failed to load posts')).toBeInTheDocument());
   });
@@ -77,7 +100,7 @@ describe('ClassForum Component', () => {
     (fetchPosts as jest.Mock).mockResolvedValue(mockPosts);
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" />);
+      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Post Title'), { target: { value: 'New Post' } });
@@ -92,7 +115,7 @@ describe('ClassForum Component', () => {
     (createPost as jest.Mock).mockResolvedValue({ error: 'Failed to create post' });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" />);
+      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Post Title'), { target: { value: 'New Post' } });
