@@ -1,7 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createPost } from '../actions/postActions';
 import Link from 'next/link';
 import { createPost, fetchPosts } from '../actions/postActions';
 
