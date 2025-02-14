@@ -1,7 +1,7 @@
 'use client'
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createPost } from '../actions/postActions';
+import { createPost, fetchPosts } from '../actions/postActions';
 
 interface Post {
   id: string;
@@ -26,14 +26,10 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchPosts = async () => {
+  const fetchPostsData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/posts?classId=${selectedClassId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch posts');
-      }
-      const data = await response.json();
+      const data = await fetchPosts(selectedClassId);
       console.log('Fetched posts data:', data); // Debug log
       
       if (Array.isArray(data)) {
@@ -52,7 +48,7 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
 
   useEffect(() => {
     if (selectedClassId) {
-      fetchPosts();
+      fetchPostsData();
     }
   }, [selectedClassId]);
 
@@ -85,7 +81,7 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
               const form = document.querySelector('form') as HTMLFormElement;
               if (form) form.reset();
               // Fetch posts again to show the new post
-              await fetchPosts();
+              await fetchPostsData();
             }
           } catch (err) {
             setError('An error occurred while creating the post');

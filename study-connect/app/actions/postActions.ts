@@ -59,3 +59,12 @@ export async function createPost(formData: FormData) {
     return { error: 'Failed to create post' };
   }
 }
+
+export const fetchPosts = async (classId: string) => {
+  const response = await fetch(`/api/posts?classId=${classId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch posts');
+  }
+  const data = await response.json();
+  return data;
+};
