@@ -1,6 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createPost } from '../actions/postActions';
+import Link from 'next/link';
 import { createPost, fetchPosts } from '../actions/postActions';
 
 interface Post {
@@ -14,13 +16,16 @@ interface Post {
     _seconds: number;
     _nanoseconds: number;
   };
+  likes: number;
+  likedBy: string[];
 }
 
 interface ClassForumProps {
   selectedClassId: string;
+  onCloseAction: () => void;
 }
 
-export default function ClassForum({ selectedClassId }: ClassForumProps) {
+export default function ClassForum({ selectedClassId, onCloseAction }: ClassForumProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +71,28 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6 text-black">Class Forum - {selectedClassId}</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-black">Class Forum - {selectedClassId}</h2>
+        <button
+          onClick={onCloseAction}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          aria-label="Close forum"
+        >
+          <svg
+            className="w-6 h-6 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
 
       {/* New Post Form */}
       <form 
@@ -134,12 +160,34 @@ export default function ClassForum({ selectedClassId }: ClassForumProps) {
       ) : (
         <div className="space-y-6">
           {posts.map((post) => (
-            <div key={post.id} className="border rounded-lg p-4">
-              <h3 className="text-xl font-semibold mb-2 text-black">{post.title}</h3>
-              <p className="text-black mb-4">{post.content}</p>
-              <div className="text-sm text-gray-500">
-                Posted by {post.authorName} • {formatDate(post.createdAt)}
-              </div>
+            <div key={post.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+              <Link href={`/posts/${post.id}`}>
+                <h3 className="text-xl font-semibold mb-2 text-black hover:text-blue-600">
+                  {post.title}
+                </h3>
+                <p className="text-black mb-4">{post.content}</p>
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div>
+                    Posted by {post.authorName} • {formatDate(post.createdAt)}
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <svg
+                      className="w-4 h-4 text-red-500"
+                      fill="currentColor"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                    <span>{post.likes || 0}</span>
+                  </div>
+                </div>
+              </Link>
             </div>
           ))}
         </div>
