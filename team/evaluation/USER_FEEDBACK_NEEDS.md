@@ -1,15 +1,19 @@
-**INSTRUCTIONS**
+## Requested User Feedback
 
-For our planned Inter-Team Evaluation on 02/26/25, please make sure you have a version (or versions) of your product deployable 
-that allows an evaluator team to give you feedback on specific questions you’d like resolved. Towards this end, over the next week:
+Thank you for testing our StudyConnect app! 
 
-List in a new team/evaluation/USER_FEEDBACK_NEEDS.md document (in priority order) three things about your product that you would love 
-to have user feedback on. Just to give example possibilities: user preference between two designs, an A/B study on the consequences of two designs, 
-user satisfaction with a particular feature, user satisfaction with your overall current product, but there are many more possibilities.
+Instructions: First, go into the app blindly and just play around with the features as if you were a new user that 
 
-The more specific you can be on these items, the better. You get the points just for the ideation, but the idea is that this process facilitate 
-and help you prepare one of the evaluations you list for the inter-team project evaluation exercise on 02/26/25, and the other team will actually 
-try to answer your question while testing your deployment. Basically, you have 7 user study participants, the other team’s members, at your disposal 
-for concrete feedback. Presumably, you will prepare your top priority user feedback solicitation, but maybe a different option if the top priority is 
-not feasible to be evaluated by 2/26.
+**1. Ease of Use**
+When going through the webapp, did you have any difficulties...
 
+1. logging in?
+2. creating your profile?
+3. figuring out how to join a course?
+4. viewing and editing your profile?
+5. creating a forum post and engaging with it?
+
+**2. Webapp Design**
+Please give any feedback you have on the design of the website; i.e. what you think could use improvement, and would you would like to stay the same.
+
+**3. What's missing?**
