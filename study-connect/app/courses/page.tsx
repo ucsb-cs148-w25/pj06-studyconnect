@@ -6,10 +6,13 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
+import ClassesSidebar from '../components/ClassesSidebar'
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
-  Card, CardContent, Typography, Box, Button
+  Card, CardContent, Typography, Box, Button,
+  selectClasses
 } from '@mui/material';
 
 type Class = {
@@ -36,13 +39,17 @@ type TimeLocation = {
   endTime: string
 }
 
-interface User {
-  email: string;
-  name: string;
-  joinedClasses: string[];
+interface JoinedClass {
+  courseId: string;
+  courseTitle?: string;
 }
 
-const SUBJECTCODES = ["ANTH", "ART", "ART  CS", "ARTHI", "ARTST", "AS AM", "ASTRO", "BIOE", "BIOL", "BIOL CS", "BL ST", "CH E", "CHEM CS", "CHEM", "CH ST", "CHIN", "CLASS", "COMM", "C LIT", "CMPSC", "CMPSCCS", "CMPTG", "CMPTGCS", "CNCSP", "DANCE", "DYNS", "EARTH", "EACS", "EEMB", "ECON", "ED", "ECE", "ENGR", "ENGL", "EDS", "ESM", "ENV S", "ESS", "ES   1-", "FEMST", "FAMST", "FR", "GEN S", "GEN SCS", "GEOG", "GER", "GPS", "GLOBL", "GRAD", "GREEK", "HEB", "HIST", "IQB", "INT", "INT  CS", "ITAL", "JAPAN", "KOR", "LATIN", "LAIS", "LING", "LIT", "LIT CS", "MARSC", "MARIN", "MARINCS", "MATRL", "MATH", "MATH CS", "ME", "MAT", "ME ST", "MES", "MS", "MCDB", "MUS", "MUS  CS", "MUS A", "PHIL", "PHYS", "PHYS CS", "POL S", "PORT", "PSY", "RG ST", "RENST", "RUSS", "SLAV", "SOC", "SPAN", "SHS", "PSTAT", "TMP", "THTR", "WRIT", "W&L CSW", "W&L", "W&L  CS"];
+interface User {
+  joinedClasses: string[];
+  name: string;
+  email: string;
+}
+
 
 export default function Home() {
   const [error, setError] = useState<string>('');
@@ -50,29 +57,6 @@ export default function Home() {
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-    
-  useEffect(() => {
-    const fetchUser = async (userId: string) => {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        setUser(userDoc.data() as User);
-      } else {
-        console.log("No such document!");
-      }
-    };
-
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUserId(currentUser.uid);
-        fetchUser(currentUser.uid);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const defaultClass: Class = {
     courseId: 'No Class',
@@ -83,40 +67,16 @@ export default function Home() {
 
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
   const [selectedName, setSelectedName] = useState<string>('');
+  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
   const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
+  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
 
   const [classesLoading, setClassesLoading] = useState<boolean>(false);
   const [classesError, setClassesError] = useState<boolean>(false);
 
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  const handleSelectedNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedName(event.target.value);
-    fetchClassesByName(event.target.value);
-  }
-
-  const handleSelectedSubjectCode = (event: SelectChangeEvent<string>) => {
-    setSelectedSubjectCode(event.target.value);
-    fetchClassesBySubjectCode(event.target.value);
-  }
-
-  const handleSearchTypeChange = (event: SelectChangeEvent<string>) => {
-    setSelectedSearchType(event.target.value);
-    if (event.target.value === 'name') {
-      fetchClassesByName(selectedName);
-    } else if (event.target.value === 'subjectCode') {
-      fetchClassesBySubjectCode(selectedSubjectCode);
-    }
-  }
-
-  const handleCardClick = (obj: Class) => {
-    setSelectedClass(obj);
-  }
 
   const fetchClasses = async (response: any) => {
     let currLeadInstructors: Instructor[] = [];
@@ -167,7 +127,7 @@ export default function Home() {
     setClassesLoading(true);
     setClassesError(false);
     try {
-      const response = await fetch(`/api/classes/?quarter=20252&title=${encodeURIComponent(name)}&pageSize=100`);
+      const response = await fetch(`/api/classes/?quarter=${selectedQuarter}&title=${encodeURIComponent(name)}&pageSize=100`);
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
       let classes: Class[] = await fetchClasses(data);
@@ -176,6 +136,7 @@ export default function Home() {
       setError(`Failed to load classes for name '${name}'`);
     } finally {
       setLoading(false);
+      setClassesLoading(false);
     }
   }
 
@@ -187,7 +148,7 @@ export default function Home() {
     setClassesLoading(true);
     setClassesError(false);
     try {
-      const response = await fetch(`/api/classes?quarter=20252&subjectCode=${encodeURIComponent(subjectCode)}&pageSize=100`);
+      const response = await fetch(`/api/classes?quarter=${selectedQuarter}&subjectCode=${encodeURIComponent(subjectCode)}&pageSize=100`);
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
       const classes: Class[] = await fetchClasses(data);
@@ -196,8 +157,88 @@ export default function Home() {
       setError(`Failed to load classes for subjectCode '${subjectCode}'`);
     } finally {
       setLoading(false);
+      setClassesLoading(false);
     }
   };
+    
+  useEffect(() => {
+    const fetchUser = async (userId: string) => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        setUser(userData);
+        const classObjects = userData.joinedClasses.map(classId => ({
+          courseId: classId,
+        }));
+        const sortedClasses = classObjects.sort((a, b) => {
+          const regex = /^([A-Za-z]+)\s*(\d+)$/;
+          const matchA = a.courseId.match(regex);
+          const matchB = b.courseId.match(regex);
+        
+          if (!matchA || !matchB) {
+            return a.courseId.localeCompare(b.courseId);
+          }
+        
+          const deptA = matchA[1];
+          const deptB = matchB[1];
+          const numA = parseInt(matchA[2], 10);
+          const numB = parseInt(matchB[2], 10);
+        
+          if (deptA !== deptB) {
+            return deptA.localeCompare(deptB);
+          }
+          return numA - numB;
+        });
+        setJoinedClasses(sortedClasses);
+      } else {
+        console.log("No such document!");
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUserId(currentUser.uid);
+        fetchUser(currentUser.uid);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    fetchClassesBySubjectCode(selectedSubjectCode)
+    fetchClassesByName(selectedName)
+    
+    return () => unsubscribe();
+  }, [selectedQuarter]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  const handleSelectedNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedName(event.target.value);
+    fetchClassesByName(event.target.value);
+  }
+
+  const handleSelectedSubjectCode = (event: SelectChangeEvent<string>) => {
+    setSelectedSubjectCode(event.target.value);
+    fetchClassesBySubjectCode(event.target.value);
+  }
+
+  const handleSearchTypeChange = (event: SelectChangeEvent<string>) => {
+    setSelectedSearchType(event.target.value);
+    if (event.target.value === 'name') {
+      fetchClassesByName(selectedName);
+      setSelectedSubjectCode('');
+    } else if (event.target.value === 'subjectCode') {
+      fetchClassesBySubjectCode(selectedSubjectCode);
+      setSelectedName('');
+    }
+  }
+
+  const handleCardClick = (obj: Class) => {
+    setSelectedClass(obj);
+  }
 
   const searchOption = () => {
     if (selectedSearchType === 'name') {
@@ -235,7 +276,7 @@ export default function Home() {
   }
 
   const filteredClassesGrid = () => {
-    if (displayedClasses.length === 0) {
+    if (displayedClasses.length === 0 && !loading && !classesLoading) {
       return (
         <div>
           <p>No classes found!</p>
@@ -248,7 +289,7 @@ export default function Home() {
           <Card
             key={classObj.courseId}
             onClick={() => handleCardClick(classObj)}
-            style={{ cursor: 'pointer', border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none' }}
+            style={{ cursor: 'pointer', border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none', backgroundColor: user && user.joinedClasses.some((cls) => cls === classObj.courseId) ? 'lightgreen' : 'white' }}
           >
             <CardContent>
               <Typography variant="h6" component="div" style={{ fontSize: '1.0rem' }}>
@@ -379,19 +420,27 @@ export default function Home() {
     );
   }
 
-  const test = () => {
-    if (!user) {
-      return <p>No user found</p>
-    }
-    return <p>{user.name}</p>
-  }
-
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
+      <ClassesSidebar onClassSelectAction={setSelectedClassId} />
       {/* left panel */}
-      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen">
+      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Explore Classes</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Explore Classes for 
+            <select
+              className="bg-white text-gray-900 font-semibold ml-2"
+              value={selectedQuarter.slice(4)}
+              onChange={(e) => {
+                setSelectedQuarter("2025"+e.target.value)
+              }}
+            >
+              {Object.keys(QUARTERMAP).map((quarter) => (
+                <option key={quarter} value={quarter}>
+                  {QUARTERMAP[quarter as keyof typeof QUARTERMAP]} 2025
+                </option>
+              ))}
+            </select>
+          </h1>
           <p className="mt-2 text-gray-600">Search for classes to join</p>
         </div>
         <div className="flex-grow flex flex-col justify-between overflow-auto">
@@ -415,8 +464,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+  
       {/* right panel */}
-      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen">
+      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto sticky top-0 h-1">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Class Info</h1>
           <p className="mt-2 text-gray-600">Basic class information</p>
@@ -424,12 +474,7 @@ export default function Home() {
         <div className="flex-grow flex flex-col justify-between overflow-auto text-gray-600">
           {classInfo()}
         </div>
-        <div>
-          {test()}  
-        </div>
       </div>
     </div>
-  );
-  
-  
+  );  
 }

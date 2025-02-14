@@ -10,29 +10,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Class ID is required' }, { status: 400 });
     }
 
-    const cleanClassId = classId.trim();
-    console.log('Querying for classId:', cleanClassId); // Debug log
+    const postsSnapshot = await db
+      .collection('posts')
+      .where('classId', '==', classId)
+      .orderBy('createdAt', 'desc')
+      .get();
 
-    const postsRef = db.collection('posts');
-    const q = postsRef.where('classId', '==', cleanClassId);
-
-    console.log('Executing query...'); // Debug log
-    const snapshot = await q.get();
-    console.log('Query snapshot size:', snapshot.size); // Debug log
-    console.log('Query snapshot empty:', snapshot.empty); // Debug log
-
-    // Log raw data from Firestore
-    snapshot.docs.forEach(doc => {
-      console.log('Document data:', {
-        id: doc.id,
-        data: doc.data()
-      });
-    });
-
-    const posts = snapshot.docs.map(doc => {
+    const posts = postsSnapshot.docs.map(doc => {
       const data = doc.data();
-      console.log('Processing document:', data); // Debug log
-      
       return {
         id: doc.id,
         title: data.title,
@@ -41,17 +26,17 @@ export async function GET(request: Request) {
         authorName: data.authorName,
         classId: data.classId,
         createdAt: {
-          _seconds: data.createdAt?._seconds || data.createdAt?.seconds || 0,
-          _nanoseconds: data.createdAt?._nanoseconds || data.createdAt?.nanoseconds || 0
-        }
+          _seconds: data.createdAt._seconds || data.createdAt.seconds || 0,
+          _nanoseconds: data.createdAt._nanoseconds || data.createdAt.nanoseconds || 0
+        },
+        likes: data.likes || 0,
+        likedBy: data.likedBy || []
       };
     });
 
-    console.log('Final posts array:', posts); // Debug log
     return NextResponse.json(posts);
   } catch (error) {
     console.error('Error fetching posts:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch posts';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
