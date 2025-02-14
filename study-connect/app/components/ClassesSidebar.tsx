@@ -30,7 +30,7 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
           setUser(userData);
-          const classObjects = userData.joinedClasses.map(classId => ({
+          const classObjects = (userData.joinedClasses || []).map(classId => ({
             courseId: classId,
           }));
           const sortedClasses = classObjects.sort((a, b) => {
