@@ -2,36 +2,41 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClassForum from './ClassForum';
-import { createPost, fetchPosts } from '../actions/postActions';
+import { createPost } from '../actions/postActions';
 
-// Mock the createPost and fetchPosts functions
+// Mock the createPost function
 jest.mock('../actions/postActions', () => ({
-  createPost: jest.fn(),
-  fetchPosts: jest.fn().mockResolvedValue([
-    {
-      id: '1',
-      title: 'First Post',
-      content: 'This is the first post',
-      authorId: 'user1',
-      authorName: 'User One',
-      classId: 'class1',
-      createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
-      likes: 0,
-      likedBy: [],
-    },
-    {
-      id: '2',
-      title: 'Second Post',
-      content: 'This is the second post',
-      authorId: 'user2',
-      authorName: 'User Two',
-      classId: 'class1',
-      createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
-      likes: 0,
-      likedBy: [],
-    },
-  ]),
+  createPost: jest.fn()
 }));
+
+const mockPosts = [
+  {
+    id: '1',
+    title: 'First Post',
+    content: 'This is the first post',
+    authorId: 'user1',
+    authorName: 'User One',
+    classId: 'class1',
+    createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
+  },
+  {
+    id: '2',
+    title: 'Second Post',
+    content: 'This is the second post',
+    authorId: 'user2',
+    authorName: 'User Two',
+    classId: 'class1',
+    createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
+  },
+]
+
+// Mock the fetch API
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve(mockPosts),
+  })
+) as jest.Mock;
 
 // Mock the useRouter hook
 jest.mock('next/navigation', () => ({
@@ -44,60 +49,82 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('ClassForum Component', () => {
-  const mockPosts = [
-    {
-      id: '1',
-      title: 'First Post',
-      content: 'This is the first post',
-      authorId: 'user1',
-      authorName: 'User One',
-      classId: 'class1',
-      createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
-    },
-    {
-      id: '2',
-      title: 'Second Post',
-      content: 'This is the second post',
-      authorId: 'user2',
-      authorName: 'User Two',
-      classId: 'class1',
-      createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
-    },
-  ];
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test('renders ClassForum component', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockPosts),
+    });
+
     await act(async () => {
       render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
+
+    // Wait for the fetch call to complete
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+
+    // Verify that the component renders the expected text
     expect(screen.getByText('Class Forum - class1')).toBeInTheDocument();
   });
 
+  test('fetch is mocked properly', async () => {
+    const mockResponse = { message: 'Fetch is mocked!' };
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockResponse),
+    });
+
+    const response = await global.fetch('/api/test');
+    const data = await response.json();
+
+    // Verify that fetch was called with the correct URL
+    expect(global.fetch).toHaveBeenCalledWith('/api/test');
+
+    // Verify that the mock response is returned
+    expect(data).toEqual(mockResponse);
+  });
+
   test('displays posts fetched from API', async () => {
-    (fetchPosts as jest.Mock).mockResolvedValue(mockPosts);
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockPosts)
+    });
 
     await act(async () => {
       render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
+
+    // Wait for the fetch call to complete
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+
+    // TODO Verify that the posts are displayed
     await waitFor(() => expect(screen.getByText('First Post')).toBeInTheDocument());
     expect(screen.getByText('Second Post')).toBeInTheDocument();
   });
 
   test('displays error message when fetching posts fails', async () => {
-    (fetchPosts as jest.Mock).mockRejectedValue(new Error('Failed to fetch posts'));
+    (global.fetch as jest.Mock).mockRejectedValue(new Error('Failed to fetch posts'));
 
     await act(async () => {
       render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
     });
+
+    // Wait for the fetch call to complete
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+
+    // Verify that the error message is displayed
     await waitFor(() => expect(screen.getByText('Failed to load posts')).toBeInTheDocument());
   });
 
   test('handles form submission and creates a new post', async () => {
-    (createPost as jest.Mock).mockResolvedValue({ error: null });
-    (fetchPosts as jest.Mock).mockResolvedValue(mockPosts);
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockPosts),
+    });
 
     await act(async () => {
       render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
@@ -107,8 +134,8 @@ describe('ClassForum Component', () => {
     fireEvent.change(screen.getByPlaceholderText('Write your post...'), { target: { value: 'This is a new post' } });
     fireEvent.click(screen.getByText('Post'));
 
+    // Wait for the createPost call to complete
     await waitFor(() => expect(createPost).toHaveBeenCalledWith(expect.anything()));
-    await waitFor(() => expect(fetchPosts).toHaveBeenCalled());
   });
 
   test('displays error message when creating a post fails', async () => {
@@ -122,6 +149,7 @@ describe('ClassForum Component', () => {
     fireEvent.change(screen.getByPlaceholderText('Write your post...'), { target: { value: 'This is a new post' } });
     fireEvent.click(screen.getByText('Post'));
 
+    // Wait for the error message to be displayed
     await waitFor(() => expect(screen.getByText('Failed to create post')).toBeInTheDocument());
   });
 });

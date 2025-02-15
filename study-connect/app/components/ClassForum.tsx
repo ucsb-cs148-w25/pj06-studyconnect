@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createPost, fetchPosts } from '../actions/postActions';
+import { createPost } from '../actions/postActions';
 
 interface Post {
   id: string;
@@ -33,7 +33,11 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
   const fetchPostsData = async () => {
     setLoading(true);
     try {
-      const data = await fetchPosts(selectedClassId);
+      const response = await fetch(`/api/posts?classId=${selectedClassId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+      const data = await response.json();
       console.log('Fetched posts data:', data); // Debug log
       
       if (Array.isArray(data)) {
