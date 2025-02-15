@@ -3,7 +3,7 @@ import Image from "next/image";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
@@ -51,7 +51,7 @@ interface User {
 }
 
 
-export default function Home() {
+export default function ExploreCourses() {
   const [error, setError] = useState<string>('');
   const [user, setUser] = useState<User | null>(null); // Replace `any` with `User | null`
   const [userId, setUserId] = useState<string>('');
