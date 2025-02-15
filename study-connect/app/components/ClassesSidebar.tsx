@@ -61,7 +61,7 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
       }
     };
 
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth?.onAuthStateChanged((user) => {
       if (user) {
         fetchUserData(user.uid);
       } else {
@@ -69,7 +69,7 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
       }
     });
 
-    return () => unsubscribe();
+    return unsubscribe;
   }, [joinedClasses]);
 
   return (

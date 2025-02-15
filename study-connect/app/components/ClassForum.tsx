@@ -102,7 +102,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
         action={async (formData) => {
           try {
             const result = await createPost(formData);
-            if (result.error) {
+            if (result && result.error) {
               setError(result.error);
             } else {
               setError(null);

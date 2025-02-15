@@ -114,7 +114,7 @@ describe('ExploreCourses Component', () => {
         await act(async () => {
             render(<ExploreCourses />);
         });
-        expect(screen.getByText('Explore Classes')).toBeInTheDocument();
+        expect(screen.getByText('Explore Classes for')).toBeInTheDocument();
         expect(screen.getByText('Search for classes to join')).toBeInTheDocument();
     });
 
