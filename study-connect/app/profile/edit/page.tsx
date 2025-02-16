@@ -6,7 +6,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { MAJORS, MINORS } from '../../utils/consts';
 import { User } from '../../utils/interfaces';
 
-export default function Profile() {
+export default function ProfileEdit() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         name: '',
@@ -92,7 +92,7 @@ export default function Profile() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                            Full Name
+                            Full Name <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -122,7 +122,7 @@ export default function Profile() {
 
                     <div>
                         <label htmlFor="grade" className="block text-sm font-medium text-gray-700">
-                            Grade Level
+                            Grade Level <span className="text-red-500">*</span>
                         </label>
                         <select
                             id="grade"
@@ -132,7 +132,7 @@ export default function Profile() {
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700"
                         >
-                            <option value="">Select Grade Level</option>
+                            <option value="" disabled>Select Grade Level</option>
                             <option value="Freshman">Freshman</option>
                             <option value="Sophomore">Sophomore</option>
                             <option value="Junior">Junior</option>
@@ -143,7 +143,7 @@ export default function Profile() {
 
                     <div>
                         <label htmlFor="major" className="block text-sm font-medium text-gray-700">
-                            Major
+                            Major <span className="text-red-500">*</span>
                         </label>
                         <select
                             id="major"

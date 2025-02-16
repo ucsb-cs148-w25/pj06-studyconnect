@@ -9,6 +9,7 @@ export async function GET(
   const quarter = url.searchParams.get('quarter')
   const pageSize = url.searchParams.get('pageSize') || 10
   const subjectCode = url.searchParams.get('subjectCode')
+  const courseId = url.searchParams.get('courseId')
   const title = url.searchParams.get('title')
 
   if (!quarter) {
@@ -19,12 +20,15 @@ export async function GET(
   }
 
   try {
-    let apiUrl = `https://api.ucsb.edu/academics/curriculums/v3/classes/search?quarter=${quarter}&pageSize=${pageSize}`;
+    let apiUrl = `https://api.ucsb.edu/academics/curriculums/v3/classes/search?quarter=${quarter}&pageSize=${pageSize}&courseId=${courseId}`;
     if (subjectCode) {
       apiUrl += `&subjectCode=${encodeURIComponent(subjectCode)}`;
     }
     if (title) {
       apiUrl += `&title=${encodeURIComponent(title)}`;
+    }
+    if (courseId) {
+      apiUrl += `&courseId=${encodeURIComponent(courseId)}`;
     }
 
     const response = await fetch(apiUrl, {
