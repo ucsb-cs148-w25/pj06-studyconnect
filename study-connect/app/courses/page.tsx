@@ -69,10 +69,18 @@ interface User {
   email: string;
 }
 
+const defaultClass: Class = {
+  courseId: 'No Class',
+  courseTitle: '',
+  courseDescription: '',
+  deptCode: '',
+  courseDetails: [],
+  classSections: []
+};
 
 export default function ExploreCourses() {
   const [error, setError] = useState<string>('');
-  const [user, setUser] = useState<User | null>(null); // Replace `any` with `User | null`
+  const [user, setUser] = useState<User | null>(null);
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -88,17 +96,15 @@ export default function ExploreCourses() {
 
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
   const [selectedName, setSelectedName] = useState<string>('');
-  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
   const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
-  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
-
   const [classesLoading, setClassesLoading] = useState<boolean>(false);
   const [classesError, setClassesError] = useState<boolean>(false);
-
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
   const [professorData, setProfessorData] = useState<Professor[]>([]);
+  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
+  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
 
 
   const fetchClasses = async (response: any) => {
@@ -134,6 +140,8 @@ export default function ExploreCourses() {
         courseId: cls.courseId,
         courseTitle: cls.title,
         courseDescription: cls.description,
+        deptCode: cls.deptCode,
+        classSections: cls.classSections,
         courseInstructors: cls.classSections.map((section: any) => section.instructors),
         courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
         courseDetails: courseDetails,
@@ -378,6 +386,7 @@ export default function ExploreCourses() {
         </div>
       );
     }
+
     let info = null;
     if (selectedClass.courseDetails.length === 0) {
       info = (
@@ -411,10 +420,12 @@ export default function ExploreCourses() {
         </div>
       );
     }
+
     let isJoined = false;
     if (user) {
       isJoined = user.joinedClasses.some((cls) => cls === selectedClass.courseId);
     }
+
     const joinButton = (
       <Button
         onClick={async () => {
