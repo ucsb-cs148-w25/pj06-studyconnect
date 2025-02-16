@@ -8,6 +8,7 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
 import ClassesSidebar from '../components/ClassesSidebar'
+import { fetchProfessorsByDepartment } from '../../lib/fetchRMP'; 
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
@@ -68,8 +69,6 @@ interface User {
   email: string;
 }
 
-const SUBJECTCODES = ["ANTH", "ART", "ART  CS", "ARTHI", "ARTST", "AS AM", "ASTRO", "BIOE", "BIOL", "BIOL CS", "BL ST", "CH E", "CHEM CS", "CHEM", "CH ST", "CHIN", "CLASS", "COMM", "C LIT", "CMPSC", "CMPSCCS", "CMPTG", "CMPTGCS", "CNCSP", "DANCE", "DYNS", "EARTH", "EACS", "EEMB", "ECON", "ED", "ECE", "ENGR", "ENGL", "EDS", "ESM", "ENV S", "ESS", "ES   1-", "FEMST", "FAMST", "FR", "GEN S", "GEN SCS", "GEOG", "GER", "GPS", "GLOBL", "GRAD", "GREEK", "HEB", "HIST", "IQB", "INT", "INT  CS", "ITAL", "JAPAN", "KOR", "LATIN", "LAIS", "LING", "LIT", "LIT CS", "MARSC", "MARIN", "MARINCS", "MATRL", "MATH", "MATH CS", "ME", "MAT", "ME ST", "MES", "MS", "MCDB", "MUS", "MUS  CS", "MUS A", "PHIL", "PHYS", "PHYS CS", "POL S", "PORT", "PSY", "RG ST", "RENST", "RUSS", "SLAV", "SOC", "SPAN", "SHS", "PSTAT", "TMP", "THTR", "WRIT", "W&L CSW", "W&L", "W&L  CS"];
-
 const defaultClass: Class = {
   courseId: 'No Class',
   courseTitle: '',
@@ -92,6 +91,9 @@ export default function ExploreCourses() {
   const [classesError, setClassesError] = useState<boolean>(false);
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
   const [professorData, setProfessorData] = useState<Professor[]>([]);
+  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
+  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   
   const router = useRouter();
 
@@ -131,28 +133,6 @@ export default function ExploreCourses() {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  const handleSelectedNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedName(event.target.value);
-    fetchClassesByName(event.target.value);
-  }
-
-  const handleSelectedSubjectCode = (event: SelectChangeEvent<string>) => {
-    setSelectedSubjectCode(event.target.value);
-    fetchClassesBySubjectCode(event.target.value);
-  }
-
-  const handleSearchTypeChange = (event: SelectChangeEvent<string>) => {
-    setSelectedSearchType(event.target.value);
-    if (event.target.value === 'name') {
-      fetchClassesByName(selectedName);
-    } else if (event.target.value === 'subjectCode') {
-      fetchClassesBySubjectCode(selectedSubjectCode);
-    }
-  }
-
-  const handleCardClick = (obj: Class) => {
-    setSelectedClass(obj);
-  }
 
   const fetchClasses = async (response: any) => {
     let currLeadInstructors: Instructor[] = [];
