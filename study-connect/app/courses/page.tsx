@@ -115,25 +115,19 @@ export default function Home() {
   useEffect(() => {
     const fetchRMPData = async () => {
       if (selectedClass.classSections.length > 0) {
-        const fullInstructorName = selectedClass.classSections[0].instructors[0]?.instructor || 'N/A';
+        const fullInstructorName = selectedClass.classSections[0].instructors[0]?.instructor || selectedClass.courseDetails[0].instructor.name || 'N/A';
         const cleanedDepartmentCode = selectedClass.deptCode.trim();
-        
+        console.log(selectedClass); 
+
         // Format instructor name for RMP lookup
         const nameParts = fullInstructorName.split(' ').filter(part => part.trim() !== '');
         if (nameParts.length >= 2) {
-          // From GOLD API format (e.g. "CONRAD P T" or "KHARITONOVA Y")
-          // Create format that fetchRMP expects: "lastName firstInitialWithDot"
-          // fetchRMP will:
-          // 1. Split by space into [lastName, firstInitialWithDot]
-          // 2. Return false if parts.length < 2
-          // 3. Remove period from firstInitialWithDot for comparison
           const lastName = nameParts[0];
           const firstInitialWithDot = nameParts[1].charAt(0) + '.'; // Must include period
           const formattedInstructor = `${lastName} ${firstInitialWithDot}`; // Must have space
           
           console.log("department code:", cleanedDepartmentCode);
           console.log("original instructor:", fullInstructorName);
-          console.log("formatted for RMP:", formattedInstructor);
           console.log("will split into:", [lastName, firstInitialWithDot]);
           
           const rmpData = await fetchProfessorsByDepartment(cleanedDepartmentCode, formattedInstructor);
@@ -352,7 +346,7 @@ export default function Home() {
           <p>Instructor: {selectedClass.courseDetails[0].instructor.name}</p>
           {professorData.length > 0 && (
             <div className="mt-4 p-4 bg-gray-100 rounded">
-              <h3 className="font-bold mb-2">Professor Ratings</h3>
+              <h3 className="font-bold mb-2">RateMyProfessor Ratings</h3>
               <p>Average Rating: {professorData[0].avgRating.toFixed(1)}/5.0</p>
               <p>Difficulty: {professorData[0].avgDifficulty.toFixed(1)}/5.0</p>
               <p>Would Take Again: {professorData[0].wouldTakeAgainPercent}%</p>
