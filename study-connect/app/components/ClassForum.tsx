@@ -1,8 +1,8 @@
 'use client'
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createPost } from '../actions/postActions';
 import Link from 'next/link';
+import { createPost } from '../actions/postActions';
 
 interface Post {
   id: string;
@@ -30,7 +30,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchPosts = async () => {
+  const fetchPostsData = async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/posts?classId=${selectedClassId}`);
@@ -56,7 +56,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
 
   useEffect(() => {
     if (selectedClassId) {
-      fetchPosts();
+      fetchPostsData();
     }
   }, [selectedClassId]);
 
@@ -102,7 +102,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
         action={async (formData) => {
           try {
             const result = await createPost(formData);
-            if (result.error) {
+            if (result && result.error) {
               setError(result.error);
             } else {
               setError(null);
@@ -110,7 +110,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
               const form = document.querySelector('form') as HTMLFormElement;
               if (form) form.reset();
               // Fetch posts again to show the new post
-              await fetchPosts();
+              await fetchPostsData();
             }
           } catch (err) {
             setError('An error occurred while creating the post');
