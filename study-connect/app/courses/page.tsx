@@ -145,8 +145,6 @@ export default function ExploreCourses() {
         courseInstructors: cls.classSections.map((section: any) => section.instructors),
         courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
         courseDetails: courseDetails,
-        deptCode: cls.deptCode,         // Include deptCode
-        classSections: cls.classSections, // Include classSections
       }
     });
     return newClasses;
