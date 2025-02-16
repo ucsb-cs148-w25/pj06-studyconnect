@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+import { fetchProfessorsByDepartment } from '../../lib/fetchRMP'; 
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
@@ -16,11 +17,29 @@ type Class = {
   courseId: string;
   courseTitle: string;
   courseDescription: string;
+  deptCode: string;
   courseDetails: {
     instructor: Instructor; // if 2 instructors, joined by &
     timeLocation: TimeLocation[];
-  }[]
+  }[];
+  classSections: {
+    instructors: {
+      instructor: string;
+      functionCode: string;
+    }[];
+  }[];
 }
+
+type Professor = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avgRating: number;
+  avgDifficulty: number;
+  numRatings: number;
+  wouldTakeAgainPercent: number;
+  commentsSummarizedByGPT: string;
+};
 
 type Instructor = {
   name: string;
@@ -44,11 +63,29 @@ interface User {
 
 const SUBJECTCODES = ["ANTH", "ART", "ART  CS", "ARTHI", "ARTST", "AS AM", "ASTRO", "BIOE", "BIOL", "BIOL CS", "BL ST", "CH E", "CHEM CS", "CHEM", "CH ST", "CHIN", "CLASS", "COMM", "C LIT", "CMPSC", "CMPSCCS", "CMPTG", "CMPTGCS", "CNCSP", "DANCE", "DYNS", "EARTH", "EACS", "EEMB", "ECON", "ED", "ECE", "ENGR", "ENGL", "EDS", "ESM", "ENV S", "ESS", "ES   1-", "FEMST", "FAMST", "FR", "GEN S", "GEN SCS", "GEOG", "GER", "GPS", "GLOBL", "GRAD", "GREEK", "HEB", "HIST", "IQB", "INT", "INT  CS", "ITAL", "JAPAN", "KOR", "LATIN", "LAIS", "LING", "LIT", "LIT CS", "MARSC", "MARIN", "MARINCS", "MATRL", "MATH", "MATH CS", "ME", "MAT", "ME ST", "MES", "MS", "MCDB", "MUS", "MUS  CS", "MUS A", "PHIL", "PHYS", "PHYS CS", "POL S", "PORT", "PSY", "RG ST", "RENST", "RUSS", "SLAV", "SOC", "SPAN", "SHS", "PSTAT", "TMP", "THTR", "WRIT", "W&L CSW", "W&L", "W&L  CS"];
 
+const defaultClass: Class = {
+  courseId: 'No Class',
+  courseTitle: '',
+  courseDescription: '',
+  deptCode: '',
+  courseDetails: [],
+  classSections: []
+};
+
 export default function Home() {
   const [error, setError] = useState<string>('');
-  const [user, setUser] = useState<User | null>(null); // Replace `any` with `User | null`
+  const [user, setUser] = useState<User | null>(null);
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
+  const [selectedName, setSelectedName] = useState<string>('');
+  const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
+  const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
+  const [classesLoading, setClassesLoading] = useState<boolean>(false);
+  const [classesError, setClassesError] = useState<boolean>(false);
+  const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
+  const [professorData, setProfessorData] = useState<Professor[]>([]);
+  
   const router = useRouter();
     
   useEffect(() => {
@@ -74,22 +111,43 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  const defaultClass: Class = {
-    courseId: 'No Class',
-    courseTitle: '',
-    courseDescription: '',
-    courseDetails: []
-  };
-
-  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
-  const [selectedName, setSelectedName] = useState<string>('');
-  const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
-  const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
-
-  const [classesLoading, setClassesLoading] = useState<boolean>(false);
-  const [classesError, setClassesError] = useState<boolean>(false);
-
-  const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
+  // Fetch RMP data when selected class changes
+  useEffect(() => {
+    const fetchRMPData = async () => {
+      if (selectedClass.classSections.length > 0) {
+        const fullInstructorName = selectedClass.classSections[0].instructors[0]?.instructor || 'N/A';
+        const cleanedDepartmentCode = selectedClass.deptCode.trim();
+        
+        // Format instructor name for RMP lookup
+        const nameParts = fullInstructorName.split(' ').filter(part => part.trim() !== '');
+        if (nameParts.length >= 2) {
+          // From GOLD API format (e.g. "CONRAD P T" or "KHARITONOVA Y")
+          // Create format that fetchRMP expects: "lastName firstInitialWithDot"
+          // fetchRMP will:
+          // 1. Split by space into [lastName, firstInitialWithDot]
+          // 2. Return false if parts.length < 2
+          // 3. Remove period from firstInitialWithDot for comparison
+          const lastName = nameParts[0];
+          const firstInitialWithDot = nameParts[1].charAt(0) + '.'; // Must include period
+          const formattedInstructor = `${lastName} ${firstInitialWithDot}`; // Must have space
+          
+          console.log("department code:", cleanedDepartmentCode);
+          console.log("original instructor:", fullInstructorName);
+          console.log("formatted for RMP:", formattedInstructor);
+          console.log("will split into:", [lastName, firstInitialWithDot]);
+          
+          const rmpData = await fetchProfessorsByDepartment(cleanedDepartmentCode, formattedInstructor);
+          setProfessorData(rmpData);
+        } else {
+          console.log("Could not parse instructor name:", fullInstructorName);
+          setProfessorData([]);
+        }
+      } else {
+        setProfessorData([]);
+      }
+    };
+    fetchRMPData();
+  }, [selectedClass]);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -151,6 +209,8 @@ export default function Home() {
         courseId: cls.courseId,
         courseTitle: cls.title,
         courseDescription: cls.description,
+        deptCode: cls.deptCode,
+        classSections: cls.classSections,
         courseInstructors: cls.classSections.map((section: any) => section.instructors),
         courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
         courseDetails: courseDetails,
@@ -272,6 +332,7 @@ export default function Home() {
         </div>
       );
     }
+
     let info = null;
     if (selectedClass.courseDetails.length === 0) {
       info = (
@@ -289,13 +350,28 @@ export default function Home() {
           <p>Class Name: {selectedClass.courseTitle}</p>
           <p>Description: {selectedClass.courseDescription}</p>
           <p>Instructor: {selectedClass.courseDetails[0].instructor.name}</p>
+          {professorData.length > 0 && (
+            <div className="mt-4 p-4 bg-gray-100 rounded">
+              <h3 className="font-bold mb-2">Professor Ratings</h3>
+              <p>Average Rating: {professorData[0].avgRating.toFixed(1)}/5.0</p>
+              <p>Difficulty: {professorData[0].avgDifficulty.toFixed(1)}/5.0</p>
+              <p>Would Take Again: {professorData[0].wouldTakeAgainPercent}%</p>
+              <p>Number of Ratings: {professorData[0].numRatings}</p>
+              <div className="mt-2">
+                <p className="font-semibold">Student Comments Summary:</p>
+                <p className="text-sm italic">{professorData[0].commentsSummarizedByGPT}</p>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
+
     let isJoined = false;
     if (user) {
       isJoined = user.joinedClasses.some((cls) => cls === selectedClass.courseId);
     }
+
     const joinButton = (
       <Button
         onClick={async () => {
@@ -331,6 +407,7 @@ export default function Home() {
         Join Class
       </Button>
     )
+
     const leaveButton = (
       <Button
         onClick={async () => {
@@ -368,6 +445,7 @@ export default function Home() {
         Leave Class
       </Button>
     )
+
     return (
       <div>
         {info}
@@ -430,6 +508,4 @@ export default function Home() {
       </div>
     </div>
   );
-  
-  
 }
