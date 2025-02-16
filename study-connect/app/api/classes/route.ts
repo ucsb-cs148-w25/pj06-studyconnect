@@ -20,7 +20,7 @@ export async function GET(
   }
 
   try {
-    let apiUrl = `https://api.ucsb.edu/academics/curriculums/v3/classes/search?quarter=${quarter}&pageSize=${pageSize}&courseId=${courseId}`;
+    let apiUrl = `https://api.ucsb.edu/academics/curriculums/v3/classes/search?quarter=${quarter}&pageSize=${pageSize}`;
     if (subjectCode) {
       apiUrl += `&subjectCode=${encodeURIComponent(subjectCode)}`;
     }
