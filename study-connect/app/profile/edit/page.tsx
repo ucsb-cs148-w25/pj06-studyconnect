@@ -5,6 +5,7 @@ import { auth } from '../../../lib/firebase';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { MAJORS, MINORS } from '../../utils/consts';
 import { User } from '../../utils/interfaces';
+import { profile } from 'console';
 
 export default function ProfileEdit() {
     const router = useRouter();
@@ -14,7 +15,8 @@ export default function ProfileEdit() {
         grade: '',
         major: '',
         minor: '',
-        joinedClasses: []
+        joinedClasses: [],
+        profilePic: ''
     });
     const [loading, setLoading] = useState(true);
     const db = getFirestore();
@@ -33,7 +35,8 @@ export default function ProfileEdit() {
                         grade: userData.grade || '',
                         major: userData.major || '',
                         minor: userData.minor || '',
-                        joinedClasses: userData.joinedClasses || []
+                        joinedClasses: userData.joinedClasses || [],
+                        profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
                     });
                 } else {
                     setFormData(prev => ({
@@ -59,10 +62,11 @@ export default function ProfileEdit() {
                 grade: formData.grade,
                 major: formData.major,
                 minor: formData.minor,
-                joinedClasses: formData.joinedClasses.length ? formData.joinedClasses : []
+                joinedClasses: formData.joinedClasses.length ? formData.joinedClasses : [],
+                profilePic: formData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
             });
         }
-        router.push('/');
+        router.push('/profile');
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

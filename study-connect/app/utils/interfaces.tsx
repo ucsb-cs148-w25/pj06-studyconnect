@@ -5,6 +5,7 @@ export interface User {
     major: string;
     minor: string;
     joinedClasses: string[];
+    profilePic: string;
 }
 
 export interface Class {

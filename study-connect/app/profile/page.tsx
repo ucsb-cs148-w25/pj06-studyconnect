@@ -37,7 +37,8 @@ export default function Profile() {
                     grade: userData.grade || '',
                     major: userData.major || '',
                     minor: userData.minor || '',
-                    joinedClasses: userData.joinedClasses || []
+                    joinedClasses: userData.joinedClasses || [],
+                    profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
                 });
             }
         } catch (error) {
@@ -58,7 +59,7 @@ export default function Profile() {
 
     return (
       <Suspense fallback={<div className="h-screen flex justify-center items-center">Loading...</div>}>
-        <ProfileContent user={user} />
+        <ProfileContent user={user} setUser={setUser} />
       </Suspense>
     );
 }
