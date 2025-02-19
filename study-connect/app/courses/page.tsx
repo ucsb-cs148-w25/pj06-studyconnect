@@ -8,7 +8,8 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
 import ClassesSidebar from '../components/ClassesSidebar'
-import { User, Class, Instructor, TimeLocation, JoinedClass } from '../utils/interfaces';
+import { fetchProfessorsByDepartment } from "@/lib/fetchRMP";
+import { User, Class, Instructor, TimeLocation, JoinedClass, Professor } from '../utils/interfaces';
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
@@ -18,7 +19,7 @@ import {
 
 export default function ExploreCourses() {
   const [error, setError] = useState<string>('');
-  const [user, setUser] = useState<User | null>(null); // Replace `any` with `User | null`
+  const [user, setUser] = useState<User | null>(null);
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -27,21 +28,23 @@ export default function ExploreCourses() {
     courseId: 'No Class',
     courseTitle: '',
     courseDescription: '',
-    courseDetails: []
+    courseDetails: [],
+    deptCode: '',
+    classSections: []
   };
 
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
   const [selectedName, setSelectedName] = useState<string>('');
-  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
   const [selectedClass, setSelectedClass] = useState<Class>(defaultClass);
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
   const [selectedSearchType, setSelectedSearchType] = useState<string>('name');
-  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
-
   const [classesLoading, setClassesLoading] = useState<boolean>(false);
   const [classesError, setClassesError] = useState<boolean>(false);
-
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
+  const [professorData, setProfessorData] = useState<Professor[]>([]);
+  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
+  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
+
 
   const fetchClasses = async (response: any) => {
     const data = response.classes;
@@ -79,6 +82,8 @@ export default function ExploreCourses() {
         courseId: cls.courseId,
         courseTitle: cls.title,
         courseDescription: cls.description,
+        deptCode: cls.deptCode,
+        classSections: cls.classSections,
         courseInstructors: cls.classSections.map((section: any) => section.instructors),
         courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
         courseDetails: courseDetails,
@@ -179,6 +184,40 @@ export default function ExploreCourses() {
     return () => unsubscribe();
   }, [selectedQuarter]);
 
+  useEffect(() => {
+    const fetchRMPData = async () => {
+      if (selectedClass.classSections.length > 0) {
+        const fullInstructorName =
+          selectedClass.classSections[0].instructors[0]?.instructor ||
+          selectedClass.courseDetails[0].instructor.name ||
+          'N/A';
+        const cleanedDepartmentCode = selectedClass.deptCode.trim();
+        console.log(selectedClass);
+
+        // Format instructor name for RMP lookup
+        const nameParts = fullInstructorName.split(' ').filter(part => part.trim() !== '');
+        if (nameParts.length >= 2) {
+          const lastName = nameParts[0];
+          const firstInitialWithDot = nameParts[1].charAt(0) + '.';
+          const formattedInstructor = `${lastName} ${firstInitialWithDot}`;
+
+          console.log("department code:", cleanedDepartmentCode);
+          console.log("original instructor:", fullInstructorName);
+          console.log("will split into:", [lastName, firstInitialWithDot]);
+
+          const rmpData = await fetchProfessorsByDepartment(cleanedDepartmentCode, formattedInstructor);
+          setProfessorData(rmpData);
+        } else {
+          console.log("Could not parse instructor name:", fullInstructorName);
+          setProfessorData([]);
+        }
+      } else {
+        setProfessorData([]);
+      }
+    };
+    fetchRMPData();
+  }, [selectedClass]);
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
@@ -221,28 +260,30 @@ export default function ExploreCourses() {
             margin="none"
           />
         </FormControl>
-      )
+      );
     } else if (selectedSearchType === 'subjectCode') {
       return (
         <FormControl fullWidth margin="none">
           <InputLabel id="searchType-label">Subject Code</InputLabel>
           <Select
-              labelId="searchSubjectCode-label"
-              id="searchSubjectCode"
-              label="subjectCode"
-              onChange={handleSelectedSubjectCode}
-              value={selectedSubjectCode}
-              margin="none"
+            labelId="searchSubjectCode-label"
+            id="searchSubjectCode"
+            label="subjectCode"
+            onChange={handleSelectedSubjectCode}
+            value={selectedSubjectCode}
+            margin="none"
           >
             {SUBJECTCODES.map((subjectCode) => (
-              <MenuItem key={subjectCode} value={subjectCode}>{subjectCode}</MenuItem>
+              <MenuItem key={subjectCode} value={subjectCode}>
+                {subjectCode}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
-      )
+      );
     }
     return null;
-  }
+  };
 
   const filteredClassesGrid = () => {
     if (displayedClasses.length === 0 && !loading && !classesLoading) {
@@ -258,7 +299,11 @@ export default function ExploreCourses() {
           <Card
             key={classObj.courseId}
             onClick={() => handleCardClick(classObj)}
-            style={{ cursor: 'pointer', border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none', backgroundColor: user && user.joinedClasses.some((cls) => cls === classObj.courseId) ? 'lightgreen' : 'white' }}
+            style={{
+              cursor: 'pointer',
+              border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none',
+              backgroundColor: user && user.joinedClasses.some((cls) => cls === classObj.courseId) ? 'lightgreen' : 'white'
+            }}
           >
             <CardContent>
               <Typography variant="h6" component="div" style={{ fontSize: '1.0rem' }}>
@@ -282,6 +327,7 @@ export default function ExploreCourses() {
         </div>
       );
     }
+
     let info = null;
     if (selectedClass.courseDetails.length === 0) {
       info = (
@@ -302,10 +348,12 @@ export default function ExploreCourses() {
         </div>
       );
     }
+
     let isJoined = false;
     if (user) {
       isJoined = user.joinedClasses.some((cls) => cls === selectedClass.courseId);
     }
+
     const joinButton = (
       <Button
         onClick={async () => {
@@ -324,7 +372,7 @@ export default function ExploreCourses() {
                   joinedClasses: [selectedClass.courseId]
                 });
               }
-    
+
               setUser({
                 ...user,
                 joinedClasses: [...user.joinedClasses, selectedClass.courseId]
@@ -340,7 +388,7 @@ export default function ExploreCourses() {
       >
         Join Class
       </Button>
-    )
+    );
     const leaveButton = (
       <Button
         onClick={async () => {
@@ -348,7 +396,7 @@ export default function ExploreCourses() {
             try {
               const userRef = doc(db, "users", userId);
               const userDoc = await getDoc(userRef);
-    
+
               if (userDoc.exists()) {
                 const userData = userDoc.data();
                 if (userData && userData.joinedClasses) {
@@ -358,7 +406,7 @@ export default function ExploreCourses() {
                 } else {
                   console.log("No joinedClasses field to remove from");
                 }
-    
+
                 setUser({
                   ...user,
                   joinedClasses: user.joinedClasses.filter((cls) => cls !== selectedClass.courseId)
@@ -377,7 +425,7 @@ export default function ExploreCourses() {
       >
         Leave Class
       </Button>
-    )
+    );
     return (
       <div>
         {info}
@@ -387,7 +435,7 @@ export default function ExploreCourses() {
         </Box>
       </div>
     );
-  }
+  };
 
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
@@ -395,12 +443,13 @@ export default function ExploreCourses() {
       {/* left panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Explore Classes for 
+          <h1 className="text-3xl font-bold text-gray-900">
+            Explore Classes for{' '}
             <select
               className="bg-white text-gray-900 font-semibold ml-2"
               value={selectedQuarter.slice(4)}
               onChange={(e) => {
-                setSelectedQuarter("2025"+e.target.value)
+                setSelectedQuarter("2025" + e.target.value);
               }}
             >
               {Object.keys(QUARTERMAP).map((quarter) => (
@@ -433,7 +482,7 @@ export default function ExploreCourses() {
           </div>
         </div>
       </div>
-  
+
       {/* right panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto sticky top-0 h-1">
         <div className="text-center">
@@ -445,5 +494,5 @@ export default function ExploreCourses() {
         </div>
       </div>
     </div>
-  );  
+  );
 }
