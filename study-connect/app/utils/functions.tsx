@@ -35,6 +35,8 @@ export const fetchClasses = async (response: any) => {
         courseId: cls.courseId,
         courseTitle: cls.title,
         courseDescription: cls.description,
+        deptCode: cls.deptCode,
+        classSections: cls.classSections,
         courseInstructors: cls.classSections.map((section: any) => section.instructors),
         courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
         courseDetails: courseDetails,

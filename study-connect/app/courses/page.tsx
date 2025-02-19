@@ -345,6 +345,19 @@ export default function ExploreCourses() {
           <p>Class Name: {selectedClass.courseTitle}</p>
           <p>Description: {selectedClass.courseDescription}</p>
           <p>Instructor: {selectedClass.courseDetails[0].instructor.name === "" ? "N/A" : selectedClass.courseDetails[0].instructor.name}</p>
+          {professorData.length > 0 && (
+            <div className="mt-4 p-4 bg-gray-100 rounded">
+              <h3 className="font-bold mb-2">RateMyProfessor Ratings</h3>
+              <p>Average Rating: {professorData[0].avgRating.toFixed(1)}/5.0</p>
+              <p>Difficulty: {professorData[0].avgDifficulty.toFixed(1)}/5.0</p>
+              <p>Would Take Again: {professorData[0].wouldTakeAgainPercent}%</p>
+              <p>Number of Ratings: {professorData[0].numRatings}</p>
+              <div className="mt-2">
+                <p className="font-semibold">Student Comments Summary:</p>
+                <p className="text-sm italic">{professorData[0].commentsSummarizedByGPT}</p>
+              </div>
+            </div>
+          )}
         </div>
       );
     }

@@ -44,7 +44,7 @@ export interface JoinedClass {
     courseTitle?: string;
 }
 
-export interface Professor {
+export type Professor = {
   id: string;
   firstName: string;
   lastName: string;
