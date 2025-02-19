@@ -12,10 +12,17 @@ export interface Class {
     courseId: string;
     courseTitle: string;
     courseDescription: string;
+    deptCode: string;
     courseDetails: {
       instructor: Instructor; // if 2 instructors, joined by &
       timeLocation: TimeLocation[];
-    }[]
+    }[];
+    classSections: {
+      instructors: {
+        instructor: string;
+        functionCode: string;
+      }[];
+    }[];
 }
 
 export interface Instructor {
@@ -36,3 +43,14 @@ export interface JoinedClass {
     courseId: string;
     courseTitle?: string;
 }
+
+export interface Professor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avgRating: number;
+  avgDifficulty: number;
+  numRatings: number;
+  wouldTakeAgainPercent: number;
+  commentsSummarizedByGPT: string;
+};
