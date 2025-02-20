@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import ClassesSidebar from './components/ClassesSidebar';
 import ClassForum from './components/ClassForum';
+import WebChat from './components/WebChat';
 
 export default function Home() {
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
@@ -18,10 +19,18 @@ export default function Home() {
       {/* Main content */}
       <div className="flex-1 p-8">
         {selectedClassId ? (
-          <ClassForum 
-            selectedClassId={selectedClassId} 
-            onCloseAction={handleCloseForum}
-          />
+          <div className="flex h-screen">
+            <div className="w-3/5 p-4 border-r overflow-y-auto h-full">
+            <ClassForum 
+              selectedClassId={selectedClassId} 
+              onCloseAction={handleCloseForum}
+            />
+            </div>
+            <div className="w-2/5 p-4 overflow-y-auto h-full">
+            <WebChat/>
+            </div>
+          </div>
+          
         ) : (
           <div className="max-w-4xl text-center space-y-8">
             <h1 className="text-4xl font-bold text-gray-900">Welcome to Study Connect</h1>
