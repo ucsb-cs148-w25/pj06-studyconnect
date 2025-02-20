@@ -2,23 +2,15 @@
 import { useEffect, useState } from 'react';
 import { auth, db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-
-interface JoinedClass {
-  courseId: string;
-  courseTitle?: string;
-}
-
-interface User {
-  joinedClasses: string[];
-  name: string;
-  email: string;
-}
+import { User, JoinedClass, Class } from '../utils/interfaces';
+import { fetchClassByCourseId } from '../utils/functions';
 
 interface ClassesSidebarProps {
   onClassSelectAction: (classId: string | null) => void;
+  setSelectedClass?: (class_: Class) => void;
 }
 
-export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarProps) {
+export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }: ClassesSidebarProps) {
   const [user, setUser] = useState<User | null>(null);
   const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +84,13 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
               <li
                 key={class_.courseId}
                 className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
-                onClick={() => onClassSelectAction(class_.courseId)}
+                onClick={async () => {
+                  onClassSelectAction(class_.courseId)
+                  if (setSelectedClass) {
+                    const clas = await fetchClassByCourseId(class_.courseId, '20252');
+                    setSelectedClass(clas);
+                  }
+                }}
               >
                 <span className="text-gray-800">{class_.courseId}</span>
               </li>
