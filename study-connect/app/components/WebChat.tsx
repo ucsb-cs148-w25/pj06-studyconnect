@@ -58,7 +58,7 @@ export default function WebChat() {
   return (
     <div className="flex flex-col h-[600px] max-w-md mx-auto border rounded-lg overflow-hidden">
       <div className="bg-primary text-primary-foreground p-4">
-        <h2 className="text-xl font-bold">Messages</h2>
+        <h2 className="text-xl text-black font-bold">Messages</h2>
       </div>
       <div className="flex-grow p-4">
         {messages.map((message) => (
@@ -66,10 +66,10 @@ export default function WebChat() {
             <Avatar>SB</Avatar>
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
-                <span className="font-semibold">{message.user.name}</span>
-                <span className="text-xs text-muted-foreground ml-2">{message.timestamp}</span>
+                <span className="font-semibold text-gray-600">{message.user.name}</span>
+                <span className="text-xs text-gray-600 text-muted-foreground ml-2">{message.timestamp}</span>
               </div>
-              <p className="text-sm">{message.content}</p>
+              <p className="text-sm text-gray-600">{message.content}</p>
             </div>
           </div>
         ))}
