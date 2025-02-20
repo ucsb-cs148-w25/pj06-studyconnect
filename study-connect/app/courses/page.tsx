@@ -9,74 +9,13 @@ import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebas
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
 import ClassesSidebar from '../components/ClassesSidebar'
 import { fetchProfessorsByDepartment } from "@/lib/fetchRMP";
+import { User, Class, Instructor, TimeLocation, JoinedClass, Professor } from '../utils/interfaces';
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
   Card, CardContent, Typography, Box, Button,
   selectClasses
 } from '@mui/material';
-
-type Class = {
-  courseId: string;
-  courseTitle: string;
-  courseDescription: string;
-  deptCode: string;
-  courseDetails: {
-    instructor: Instructor; // if 2 instructors, joined by &
-    timeLocation: TimeLocation[];
-  }[];
-  classSections: {
-    instructors: {
-      instructor: string;
-      functionCode: string;
-    }[];
-  }[];
-}
-
-type Instructor = {
-  name: string;
-  functionCode: string;
-}
-
-type Professor = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avgRating: number;
-  avgDifficulty: number;
-  numRatings: number;
-  wouldTakeAgainPercent: number;
-  commentsSummarizedByGPT: string;
-};
-
-type TimeLocation = {
-  room: string;
-  building: string;
-  roomCapacity: number;
-  days: string;
-  beginTime: string;
-  endTime: string
-}
-
-interface JoinedClass {
-  courseId: string;
-  courseTitle?: string;
-}
-
-interface User {
-  joinedClasses: string[];
-  name: string;
-  email: string;
-}
-
-const defaultClass: Class = {
-  courseId: 'No Class',
-  courseTitle: '',
-  courseDescription: '',
-  deptCode: '',
-  courseDetails: [],
-  classSections: []
-};
 
 export default function ExploreCourses() {
   const [error, setError] = useState<string>('');
@@ -108,11 +47,13 @@ export default function ExploreCourses() {
 
 
   const fetchClasses = async (response: any) => {
-    let currLeadInstructors: Instructor[] = [];
     const data = response.classes;
     const newClasses = data.map((cls: any) => {
       let courseDetails: { instructor: Instructor; timeLocation: TimeLocation[] }[] = [];
-
+      // current method of processing instructors for each course is inconsistent for multiple instructors
+      // does not account for courses with multiple instructors (ex. WINTER 2025 MATH 4B)
+      // also may be slightly buggy for courses with no instructors
+      let currLeadInstructors: Instructor[] = [];
       cls.classSections.map((section: any) => {
         const sectionInstructors = section.instructors;
         const sectionTimeLocations = section.timeLocations;
@@ -129,6 +70,7 @@ export default function ExploreCourses() {
         }
 
         const instructorNames = currLeadInstructors.map((instructor: Instructor) => instructor.name);
+        console.log("cls.courseId", cls.courseId, "instructorNames", instructorNames);
 
         courseDetails.push({
           instructor: {name: instructorNames.join(" & "), functionCode: "Teaching and in charge"},
@@ -302,6 +244,7 @@ export default function ExploreCourses() {
   }
 
   const handleCardClick = (obj: Class) => {
+    console.log("obj", obj);
     setSelectedClass(obj);
   }
 
@@ -401,7 +344,7 @@ export default function ExploreCourses() {
           <p>Course ID: {selectedClass.courseId}</p>
           <p>Class Name: {selectedClass.courseTitle}</p>
           <p>Description: {selectedClass.courseDescription}</p>
-          <p>Instructor: {selectedClass.courseDetails[0].instructor.name}</p>
+          <p>Instructor: {selectedClass.courseDetails[0].instructor.name === "" ? "N/A" : selectedClass.courseDetails[0].instructor.name}</p>
           {professorData.length > 0 && (
             <div className="mt-4 p-4 bg-gray-100 rounded">
               <h3 className="font-bold mb-2">RateMyProfessor Ratings</h3>
@@ -509,7 +452,7 @@ export default function ExploreCourses() {
 
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
-      <ClassesSidebar onClassSelectAction={setSelectedClassId} />
+      <ClassesSidebar onClassSelectAction={setSelectedClassId} setSelectedClass={setSelectedClass} />
       {/* left panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">

@@ -9,6 +9,7 @@ export async function GET(
   const quarter = url.searchParams.get('quarter')
   const pageSize = url.searchParams.get('pageSize') || 10
   const subjectCode = url.searchParams.get('subjectCode')
+  const courseId = url.searchParams.get('courseId')
   const title = url.searchParams.get('title')
 
   if (!quarter) {
@@ -25,6 +26,9 @@ export async function GET(
     }
     if (title) {
       apiUrl += `&title=${encodeURIComponent(title)}`;
+    }
+    if (courseId) {
+      apiUrl += `&courseId=${encodeURIComponent(courseId)}`;
     }
 
     const response = await fetch(apiUrl, {
