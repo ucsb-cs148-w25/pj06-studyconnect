@@ -14,7 +14,7 @@ type Message = {
   content: string
   timestamp: string
 }
-
+//placeholder messages just for the sake of showing the UI, these will be deleted
 const initialMessages: Message[] = [
   {
     id: 1,
