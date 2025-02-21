@@ -106,12 +106,12 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
           <div className="w-full mt-4">
             <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {user.joinedClasses.map((course) => (
-                <li key={course} className="text-gray-600 text-center">
+                <li key={course.courseId} className="text-gray-600 text-center">
                   <button
-                    onClick={() => handleCourseClick(course)}
+                    onClick={() => handleCourseClick(course.courseId)}
                     className="px-4 py-2 bg-blue-950 text-amber-500 rounded-md hover:bg-blue-950"
                   >
-                    {course}
+                    {course.courseId}
                   </button>
                 </li>
               ))}
