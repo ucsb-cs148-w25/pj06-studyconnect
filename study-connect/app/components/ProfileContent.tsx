@@ -21,8 +21,8 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     "https://m.media-amazon.com/images/I/71clqRcms1L.jpg"
   ]);
 
-  const handleCourseClick = async (course: string) => {    
-    const courseData = await fetchClassByCourseId(course, "20252");
+  const handleCourseClick = async (course: string, quarter: string) => {    
+    const courseData = await fetchClassByCourseId(course, quarter);
     if (courseData) {
       console.log("courseData: ", courseData);
       setSelectedCourse(courseData);
@@ -108,7 +108,7 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
               {user.joinedClasses.map((course) => (
                 <li key={course.courseId} className="text-gray-600 text-center">
                   <button
-                    onClick={() => handleCourseClick(course.courseId)}
+                    onClick={() => handleCourseClick(course.courseId, course.courseQuarter)}
                     className="px-4 py-2 bg-blue-950 text-amber-500 rounded-md hover:bg-blue-950"
                   >
                     {course.courseId}
