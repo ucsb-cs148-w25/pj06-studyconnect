@@ -21,6 +21,10 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     "https://m.media-amazon.com/images/I/71clqRcms1L.jpg"
   ]);
 
+  const uploadImgSrc = "https://www.shutterstock.com/image-vector/image-upload-iconsharingphoto-vector-illustration-260nw-1835553472.jpg";
+  const loadingGifSrc = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif";
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCourseClick = async (course: string) => {    
@@ -64,21 +68,44 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     target: HTMLInputElement & EventTarget;
   }
 
-  const handleProfilePictureUpload = (event: ProfilePictureUploadEvent) => {
+  const handleProfilePictureUpload = async (event: ProfilePictureUploadEvent) => {
+    setIsUploadingImage(true);
     const file = event.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
+      const imageUrl = await uploadToCloudinary(file);
       handleSaveProfilePic(imageUrl);
       setSelectedProfilePic(imageUrl);
     }
+    setIsUploadingImage(false);
   };
 
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "profile-picture");
+    formData.append("cloud_name", "dfminldiz");
+
+    const response = await fetch("https://api.cloudinary.com/v1_1/dfminldiz/image/upload", {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error("Cloudinary upload failed");
+    }
+
+    const data = await response.json();
+    return data.secure_url;
+  };
+
+  
+
   const customProfilePicture = () => {
-    const uploadImgSrc = "https://www.shutterstock.com/image-vector/image-upload-iconsharingphoto-vector-illustration-260nw-1835553472.jpg";
+    const currentSrc = isUploadingImage ? loadingGifSrc : uploadImgSrc;
     return (
       <div>
         <img
-          src={uploadImgSrc}
+          src={currentSrc}
           alt="Upload Profile Picture"
           className="w-16 h-16 rounded-full object-cover cursor-pointer border-4 transition"
           onClick={() => fileInputRef.current?.click()} // Ensure ref exists before calling click
@@ -205,7 +232,7 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             onClick={(e) => e.stopPropagation()} // Prevent the popup from closing when clicking inside it
           >
             <div className="flex justify-between">
-              <h2 className="text-xl font-semibold text-gray-600">Select a New Profile Picture</h2>
+              <h2 className="text-xl font-semibold text-gray-600">Select a New Profile Poop</h2>
               <button
                 onClick={handleClosePopup}
                 className="hover:bg-gray-100 rounded-full transition-colors"
