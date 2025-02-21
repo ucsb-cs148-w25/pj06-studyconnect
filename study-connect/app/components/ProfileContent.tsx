@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { User, Class } from "../utils/interfaces";
 import { fetchClassByCourseId } from "../utils/functions";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { auth } from '../../lib/firebase';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
@@ -20,6 +20,8 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWNdZY6xKMtbXV8uiL_JeYrgR5Qos6HfIEbg&s",
     "https://m.media-amazon.com/images/I/71clqRcms1L.jpg"
   ]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCourseClick = async (course: string) => {    
     const courseData = await fetchClassByCourseId(course, "20252");
@@ -57,6 +59,40 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
       handleClosePopup();
     }
   };
+
+  interface ProfilePictureUploadEvent extends React.ChangeEvent<HTMLInputElement> {
+    target: HTMLInputElement & EventTarget;
+  }
+
+  const handleProfilePictureUpload = (event: ProfilePictureUploadEvent) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      handleSaveProfilePic(imageUrl);
+      setSelectedProfilePic(imageUrl);
+    }
+  };
+
+  const customProfilePicture = () => {
+    const uploadImgSrc = "https://www.shutterstock.com/image-vector/image-upload-iconsharingphoto-vector-illustration-260nw-1835553472.jpg";
+    return (
+      <div>
+        <img
+          src={uploadImgSrc}
+          alt="Upload Profile Picture"
+          className="w-16 h-16 rounded-full object-cover cursor-pointer border-4 transition"
+          onClick={() => fileInputRef.current?.click()} // Ensure ref exists before calling click
+        />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={(event) => handleProfilePictureUpload(event)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -193,6 +229,7 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             {/* Profile Pic Selection Grid */}
             {/* You can add your available profile pictures here */}
             <div className="grid grid-cols-5 gap-3 mt-4 gap-y-6">
+              {customProfilePicture()}
               {profilePics.map((pic) => (
               <img
                 key={pic}
