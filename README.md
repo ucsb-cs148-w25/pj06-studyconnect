@@ -77,8 +77,8 @@ Visit site at [localhost:3000](http://localhost:3000/)
 3. Search courses by subject code or course name
 
 # Known Problems
-1. Saving profile details (name, year, major) not yet implemented
-2. Saving selected courses not yet implemented
+1. Unique Course IDs for different quarters not yet implemented
+2. Chatroom backend not yet implemented
 
 # Contributing
 1. Fork it!
