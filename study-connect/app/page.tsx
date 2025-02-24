@@ -27,7 +27,7 @@ export default function Home() {
             />
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
-            <WebChat/>
+              <WebChat selectedClassId={selectedClassId} />
             </div>
           </div>
           
