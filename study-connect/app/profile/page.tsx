@@ -38,7 +38,8 @@ export default function Profile() {
                     major: userData.major || '',
                     minor: userData.minor || '',
                     joinedClasses: userData.joinedClasses || [],
-                    profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+                    profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+                    aboutMe: userData.aboutMe || '',
                 });
             }
         } catch (error) {
