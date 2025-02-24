@@ -1,11 +1,9 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { Avatar } from '@mui/material'
-import { Button } from '@mui/material'
-import { Input } from '@mui/material'
-import { db } from '@/lib/firebase'
-import { collection, addDoc, onSnapshot, query, orderBy, doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { Avatar, Button, Input } from '@mui/material'
+import { db, auth } from '@/lib/firebase'
+import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, serverTimestamp } from 'firebase/firestore'
 
 type Message = {
   id: string
@@ -14,7 +12,7 @@ type Message = {
     avatar: string
   }
   content: string
-  timestamp: string
+  timestamp: any
   classId: string
 }
 //placeholder messages just for the sake of showing the UI, these will be deleted
@@ -61,21 +59,42 @@ function formatTimestamp(timestamp: any): string {
 export default function WebChat({ selectedClassId }: WebChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
+  const [userData, setUserData] = useState<{ name: string; profilePic: string } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
+  // Fetch user data
   useEffect(() => {
-    // Reference to the specific class's messages subcollection
-    const classMessagesRef = collection(db, 'classChats', selectedClassId, 'messages')
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setUserData({
+              name: data.name || 'Anonymous',
+              profilePic: data.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+            });
+          }
+        } catch (error) {
+          console.error("Error getting user data:", error);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const classMessagesRef = collection(db, 'classes', selectedClassId, 'messages')
     const q = query(
       classMessagesRef,
       orderBy('timestamp', 'asc')
     )
 
-    // Listen for new messages
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messageList = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -85,25 +104,23 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
       scrollToBottom()
     })
 
-    // Cleanup listener on unmount or when selectedClassId changes
     return () => unsubscribe()
   }, [selectedClassId])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (newMessage.trim() === "") return
+    if (newMessage.trim() === "" || !userData) return
 
     try {
-      // Reference to the specific class's messages subcollection
-      const classMessagesRef = collection(db, 'classChats', selectedClassId, 'messages')
+      const classMessagesRef = collection(db, 'classes', selectedClassId, 'messages')
       
       await addDoc(classMessagesRef, {
         user: {
-          name: "You", // Replace with actual user name from auth
-          avatar: "/placeholder.svg?height=40&width=40"
+          name: userData.name,
+          avatar: userData.profilePic
         },
         content: newMessage.trim(),
-        timestamp: serverTimestamp(), // Use server timestamp for better consistency
+        timestamp: serverTimestamp(),
         classId: selectedClassId
       })
       setNewMessage("")
@@ -120,7 +137,9 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
       <div className="flex-grow p-4 overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id} className="flex items-start space-x-4 mb-4">
-            <Avatar>SB</Avatar>
+            <Avatar src={message.user.avatar} alt={message.user.name}>
+              {message.user.name.charAt(0)}
+            </Avatar>
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
                 <span className="font-semibold text-gray-600">{message.user.name}</span>
