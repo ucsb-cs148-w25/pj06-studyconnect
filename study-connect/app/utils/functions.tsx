@@ -32,14 +32,15 @@ export const fetchClasses = async (response: any) => {
         });
 
         return {
-        courseId: cls.courseId,
-        courseTitle: cls.title,
-        courseDescription: cls.description,
-        deptCode: cls.deptCode,
-        classSections: cls.classSections,
-        courseInstructors: cls.classSections.map((section: any) => section.instructors),
-        courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
-        courseDetails: courseDetails,
+            courseQuarter: cls.quarter,
+            courseId: cls.courseId,
+            courseTitle: cls.title,
+            courseDescription: cls.description,
+            deptCode: cls.deptCode,
+            classSections: cls.classSections,
+            courseInstructors: cls.classSections.map((section: any) => section.instructors),
+            courseTimeLocations: cls.classSections.map((section: any) => section.timeLocations as TimeLocation[]),
+            courseDetails: courseDetails,
         }
     });
     return newClasses;
@@ -47,6 +48,8 @@ export const fetchClasses = async (response: any) => {
 
 export const fetchClassByCourseId = async (courseId: string, quarter: string) => {
     try {
+        console.log("courseId: ", courseId);
+        console.log("quarter", quarter)
         const response = await fetch(`/api/classes/?quarter=${quarter}&courseId=${encodeURIComponent(courseId.split(" ").join(""))}&pageSize=100`);
         if (!response.ok) throw new Error('Failed to fetch data');
         const data = await response.json();

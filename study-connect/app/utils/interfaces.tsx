@@ -4,11 +4,12 @@ export interface User {
     grade: string;
     major: string;
     minor: string;
-    joinedClasses: string[];
+    joinedClasses: JoinedClass[];
     profilePic: string;
 }
 
 export interface Class {
+    courseQuarter: string;
     courseId: string;
     courseTitle: string;
     courseDescription: string;
@@ -41,7 +42,7 @@ export interface TimeLocation {
 
 export interface JoinedClass {
     courseId: string;
-    courseTitle?: string;
+    courseQuarter: string;
 }
 
 export type Professor = {

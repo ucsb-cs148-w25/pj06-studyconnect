@@ -22,9 +22,7 @@ export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
           setUser(userData);
-          const classObjects = (userData.joinedClasses || []).map(classId => ({
-            courseId: classId,
-          }));
+          const classObjects = userData.joinedClasses || [];
           const sortedClasses = classObjects.sort((a, b) => {
             const regex = /^([A-Za-z]+)\s*(\d+)$/;
             const matchA = a.courseId.match(regex);
@@ -87,7 +85,7 @@ export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }
                 onClick={async () => {
                   onClassSelectAction(class_.courseId)
                   if (setSelectedClass) {
-                    const clas = await fetchClassByCourseId(class_.courseId, '20252');
+                    const clas = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
                     setSelectedClass(clas);
                   }
                 }}
