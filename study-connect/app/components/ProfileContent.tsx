@@ -232,7 +232,7 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             onClick={(e) => e.stopPropagation()} // Prevent the popup from closing when clicking inside it
           >
             <div className="flex justify-between">
-              <h2 className="text-xl font-semibold text-gray-600">Select a New Profile Poop</h2>
+              <h2 className="text-xl font-semibold text-gray-600">Select a New Profile Picture</h2>
               <button
                 onClick={handleClosePopup}
                 className="hover:bg-gray-100 rounded-full transition-colors"
