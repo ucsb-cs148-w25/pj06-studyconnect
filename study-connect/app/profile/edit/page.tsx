@@ -1,14 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../../lib/firebase';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { MAJORS, MINORS } from '../../utils/consts';
 import { User } from '../../utils/interfaces';
-import { profile } from 'console';
 
 export default function ProfileEdit() {
     const router = useRouter();
+
+    const textRef = useRef<HTMLTextAreaElement>(null);
+
+    const onChangeHandler = function(e: SyntheticEvent) {
+        const target = e.target as HTMLTextAreaElement;
+        textRef.current!.style.height = "30px";
+        textRef.current!.style.height = `${target.scrollHeight}px`;
+    };
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -16,9 +24,12 @@ export default function ProfileEdit() {
         major: '',
         minor: '',
         joinedClasses: [],
-        profilePic: ''
+        profilePic: '',
+        aboutMe: ''
     });
+
     const [loading, setLoading] = useState(true);
+    const [charCount, setCharCount] = useState(0);
     const db = getFirestore();
 
     useEffect(() => {
@@ -36,8 +47,10 @@ export default function ProfileEdit() {
                         major: userData.major || '',
                         minor: userData.minor || '',
                         joinedClasses: userData.joinedClasses || [],
-                        profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+                        profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+                        aboutMe: userData.aboutMe || ''
                     });
+                    setCharCount(userData.aboutMe ? userData.aboutMe.length : 0);
                 } else {
                     setFormData(prev => ({
                         ...prev,
@@ -52,6 +65,13 @@ export default function ProfileEdit() {
         return () => unsubscribe();
     }, [router, db]);
 
+    useEffect(() => {
+        if (textRef.current) {
+            textRef.current.style.height = "30px";
+            textRef.current.style.height = `${textRef.current.scrollHeight}px`;
+        }
+    }, [formData.aboutMe]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const user = auth.currentUser;
@@ -63,14 +83,18 @@ export default function ProfileEdit() {
                 major: formData.major,
                 minor: formData.minor,
                 joinedClasses: formData.joinedClasses.length ? formData.joinedClasses : [],
-                profilePic: formData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+                profilePic: formData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+                aboutMe: formData.aboutMe
             });
         }
         router.push('/profile');
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        if (name === 'aboutMe' && value.length <= 500) {
+            setCharCount(value.length);
+        }
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -184,6 +208,27 @@ export default function ProfileEdit() {
                                 <option key={minor} value={minor}>{minor}</option>
                             )}
                         </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="aboutMe" className="block text-sm font-medium text-gray-700">
+                            About Me (Optional)
+                        </label>
+                        <textarea
+                            id="aboutMe"
+                            name="aboutMe"
+                            value={formData.aboutMe}
+                            ref={textRef}
+                            onChange={(e) => {
+                                handleChange(e)
+                                onChangeHandler(e)
+                            }}
+                            placeholder="Enter a short bio about yourself"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700"
+                            style={{ overflow: 'hidden' }}
+                            maxLength={500}
+                        />
+                        <div className={`text-right text-sm text-${charCount < 500 ? "gray" : "red"}-500`}>{500 - charCount} characters left</div>
                     </div>
 
                     <button

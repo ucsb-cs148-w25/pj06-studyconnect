@@ -6,6 +6,7 @@ export interface User {
     minor: string;
     joinedClasses: JoinedClass[];
     profilePic: string;
+    aboutMe: string;
 }
 
 export interface Class {

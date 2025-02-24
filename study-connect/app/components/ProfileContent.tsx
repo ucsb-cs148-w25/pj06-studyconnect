@@ -162,6 +162,12 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             </div>
           </div>
         </div>
+
+        <div className="bg-white shadow-md rounded-2xl p-6 mb-6">
+          <div className="break-words">
+              <span className="font-semibold">About me: </span>{user.aboutMe}
+          </div>
+      </div>
   
         {/* Joined Classes Section (Box 2) */}
         <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center">
