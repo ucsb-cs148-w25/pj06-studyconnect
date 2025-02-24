@@ -5,7 +5,7 @@ import { Avatar } from '@mui/material'
 import { Button } from '@mui/material'
 import { Input } from '@mui/material'
 import { db } from '@/lib/firebase'
-import { collection, addDoc, onSnapshot, query, where, orderBy } from 'firebase/firestore'
+import { collection, addDoc, onSnapshot, query, orderBy, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 
 type Message = {
   id: string
@@ -68,11 +68,10 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
   }
 
   useEffect(() => {
-    // Reference to the messages collection for this class
-    const messagesRef = collection(db, 'messages')
+    // Reference to the specific class's messages subcollection
+    const classMessagesRef = collection(db, 'classChats', selectedClassId, 'messages')
     const q = query(
-      messagesRef,
-      where('classId', '==', selectedClassId),
+      classMessagesRef,
       orderBy('timestamp', 'asc')
     )
 
@@ -95,20 +94,21 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
     if (newMessage.trim() === "") return
 
     try {
-      const messagesRef = collection(db, 'messages')
-      await addDoc(messagesRef, {
+      // Reference to the specific class's messages subcollection
+      const classMessagesRef = collection(db, 'classChats', selectedClassId, 'messages')
+      
+      await addDoc(classMessagesRef, {
         user: {
           name: "You", // Replace with actual user name from auth
           avatar: "/placeholder.svg?height=40&width=40"
         },
         content: newMessage.trim(),
-        timestamp: new Date(),
+        timestamp: serverTimestamp(), // Use server timestamp for better consistency
         classId: selectedClassId
       })
       setNewMessage("")
     } catch (error) {
       console.error("Error sending message:", error)
-      // Handle error (show notification, etc.)
     }
   }
 
