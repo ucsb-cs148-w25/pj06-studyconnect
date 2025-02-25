@@ -61,6 +61,33 @@ function formatTimestamp(timestamp: any): string {
   });
 }
 
+function formatQuarter(quarterCode: string): string {
+  if (!quarterCode) return '';
+  
+  const year = quarterCode.slice(0, 4);
+  const quarter = quarterCode.slice(4);
+  
+  let quarterName = '';
+  switch (quarter) {
+    case '1':
+      quarterName = 'Winter';
+      break;
+    case '2':
+      quarterName = 'Spring';
+      break;
+    case '3':
+      quarterName = 'Summer';
+      break;
+    case '4':
+      quarterName = 'Fall';
+      break;
+    default:
+      quarterName = '';
+  }
+  
+  return `${quarterName} ${year}`;
+}
+
 export default function WebChat({ selectedClass }: WebChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
@@ -143,7 +170,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
     <div className="flex flex-col h-[600px] max-w-md mx-auto border rounded-lg overflow-hidden">
       <div className="bg-primary text-primary-foreground p-4">
         <h2 className="text-xl text-black font-bold">
-          {selectedClass.courseId} - {selectedClass.courseQuarter} Chat
+          {selectedClass.courseId} - {formatQuarter(selectedClass.courseQuarter)} Chat
         </h2>
       </div>
       <div className="flex-grow p-4 overflow-y-auto">

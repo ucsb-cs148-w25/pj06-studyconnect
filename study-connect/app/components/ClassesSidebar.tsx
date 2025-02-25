@@ -6,11 +6,10 @@ import { User, JoinedClass, Class } from '../utils/interfaces';
 import { fetchClassByCourseId } from '../utils/functions';
 
 interface ClassesSidebarProps {
-  onClassSelectAction: (classId: string | null) => void;
-  setSelectedClass?: (class_: Class) => void;
+  onClassSelectAction: (class_: Class | null) => void;
 }
 
-export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }: ClassesSidebarProps) {
+export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarProps) {
   const [user, setUser] = useState<User | null>(null);
   const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,11 +82,8 @@ export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }
                 key={class_.courseId}
                 className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
                 onClick={async () => {
-                  onClassSelectAction(class_.courseId)
-                  if (setSelectedClass) {
-                    const clas = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
-                    setSelectedClass(clas);
-                  }
+                  const classData = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
+                  onClassSelectAction(classData);
                 }}
               >
                 <span className="text-gray-800">{class_.courseId}</span>
