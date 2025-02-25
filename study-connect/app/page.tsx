@@ -6,6 +6,7 @@ import WebChat from './components/WebChat';
 
 export default function Home() {
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [currentQuarter, setCurrentQuarter] = useState<string>('Spring 2025');
 
   const handleCloseForum = () => {
     setSelectedClassId(null);
@@ -27,7 +28,10 @@ export default function Home() {
             />
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
-              <WebChat selectedClassId={selectedClassId} />
+              <WebChat selectedClass={{
+                courseId: selectedClassId,
+                courseQuarter: currentQuarter
+              }} />
             </div>
           </div>
           

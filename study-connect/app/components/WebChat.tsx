@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Avatar, Button, Input } from '@mui/material'
 import { db, auth } from '@/lib/firebase'
 import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, serverTimestamp } from 'firebase/firestore'
+import type { JoinedClass } from '../utils/interfaces'
 
 type Message = {
   id: string
@@ -13,7 +14,8 @@ type Message = {
   }
   content: string
   timestamp: any
-  classId: string
+  courseId: string
+  courseQuarter: string
 }
 //placeholder messages just for the sake of showing the UI, these will be deleted
 const initialMessages: Message[] = [
@@ -22,26 +24,29 @@ const initialMessages: Message[] = [
     user: { name: "Alice", avatar: "/placeholder.svg?height=40&width=40" },
     content: "Hey everyone! How's it going?",
     timestamp: "2:30 PM",
-    classId: "class1"
+    courseId: "class1",
+    courseQuarter: "Q1"
   },
   {
     id: "2",
     user: { name: "Bob", avatar: "/placeholder.svg?height=40&width=40" },
     content: "Hi Alice! All good here. How about you?",
     timestamp: "2:32 PM",
-    classId: "class1"
+    courseId: "class1",
+    courseQuarter: "Q1"
   },
   {
     id: "3",
     user: { name: "Charlie", avatar: "/placeholder.svg?height=40&width=40" },
     content: "Hello folks! Just joined the chat.",
     timestamp: "2:35 PM",
-    classId: "class1"
+    courseId: "class1",
+    courseQuarter: "Q1"
   },
 ]
 
 interface WebChatProps {
-  selectedClassId: string;
+  selectedClass: JoinedClass;  // Change to accept full class info
 }
 
 function formatTimestamp(timestamp: any): string {
@@ -56,11 +61,14 @@ function formatTimestamp(timestamp: any): string {
   });
 }
 
-export default function WebChat({ selectedClassId }: WebChatProps) {
+export default function WebChat({ selectedClass }: WebChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [userData, setUserData] = useState<{ name: string; profilePic: string } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Create a unique chat room ID using courseId and quarter
+  const chatRoomId = `${selectedClass.courseId}_${selectedClass.courseQuarter}`
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -89,9 +97,10 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
   }, []);
 
   useEffect(() => {
-    const classMessagesRef = collection(db, 'classes', selectedClassId, 'messages')
+    // Use the chatRoomId for the messages collection
+    const chatRoomRef = collection(db, 'chatRooms', chatRoomId, 'messages')
     const q = query(
-      classMessagesRef,
+      chatRoomRef,
       orderBy('timestamp', 'asc')
     )
 
@@ -105,23 +114,24 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
     })
 
     return () => unsubscribe()
-  }, [selectedClassId])
+  }, [chatRoomId])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newMessage.trim() === "" || !userData) return
 
     try {
-      const classMessagesRef = collection(db, 'classes', selectedClassId, 'messages')
+      const chatRoomRef = collection(db, 'chatRooms', chatRoomId, 'messages')
       
-      await addDoc(classMessagesRef, {
+      await addDoc(chatRoomRef, {
         user: {
           name: userData.name,
           avatar: userData.profilePic
         },
         content: newMessage.trim(),
         timestamp: serverTimestamp(),
-        classId: selectedClassId
+        courseId: selectedClass.courseId,
+        courseQuarter: selectedClass.courseQuarter
       })
       setNewMessage("")
     } catch (error) {
@@ -132,7 +142,9 @@ export default function WebChat({ selectedClassId }: WebChatProps) {
   return (
     <div className="flex flex-col h-[600px] max-w-md mx-auto border rounded-lg overflow-hidden">
       <div className="bg-primary text-primary-foreground p-4">
-        <h2 className="text-xl text-black font-bold">Class Chat</h2>
+        <h2 className="text-xl text-black font-bold">
+          {selectedClass.courseId} - {selectedClass.courseQuarter} Chat
+        </h2>
       </div>
       <div className="flex-grow p-4 overflow-y-auto">
         {messages.map((message) => (
