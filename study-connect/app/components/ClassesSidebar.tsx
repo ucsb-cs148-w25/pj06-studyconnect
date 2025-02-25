@@ -4,6 +4,8 @@ import { auth, db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { User, JoinedClass, Class } from '../utils/interfaces';
 import { fetchClassByCourseId } from '../utils/functions';
+import { QUARTERMAP } from '../utils/consts';
+import { set } from 'cypress/types/lodash';
 
 interface ClassesSidebarProps {
   onClassSelectAction: (classId: string | null) => void;
@@ -62,6 +64,15 @@ export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }
     return unsubscribe;
   }, [joinedClasses]);
 
+  const groupedClasses = joinedClasses.reduce((acc, class_) => {
+    const quarter = class_.courseQuarter;
+    if (!acc[quarter]) {
+      acc[quarter] = [];
+    }
+    acc[quarter].push(class_);
+    return acc;
+  }, {} as Record<string, JoinedClass[]>);
+
   return (
     <div className="w-64 bg-white shadow-md sticky top-0 h-1">
       <div className="p-4 border-b">
@@ -77,23 +88,30 @@ export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }
         ) : joinedClasses.length === 0 ? (
           <p className="text-gray-600 text-sm">No classes joined yet</p>
         ) : (
-          <ul className="space-y-2">
-            {joinedClasses.sort().map((class_) => (
-              <li
-                key={class_.courseId}
-                className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
-                onClick={async () => {
-                  onClassSelectAction(class_.courseId)
-                  if (setSelectedClass) {
-                    const clas = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
-                    setSelectedClass(clas);
-                  }
-                }}
-              >
-                <span className="text-gray-800">{class_.courseId}</span>
-              </li>
-            ))}
-          </ul>
+          Object.keys(groupedClasses).map((quarter) => (
+            <div key={quarter}>
+              <h3 className="text-gray-600 text-md font-semibold">{QUARTERMAP[quarter[quarter.length - 1] as keyof typeof QUARTERMAP]} {quarter.substring(0, 4)}</h3>
+              <hr className="my-2" />
+              <ul className="space-y-2">
+                {groupedClasses[quarter].map((class_) => (
+                  <li
+                    key={class_.courseId}
+                    className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                    onClick={async () => {
+                      onClassSelectAction(class_.courseId)
+                      if (setSelectedClass) {
+                        const clas = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
+                        setSelectedClass(clas);
+                      }
+                    }}
+                  >
+                    <span className="text-gray-800">{class_.courseId}</span>
+                  </li>
+                ))}
+              </ul>
+              <hr className="my-2" />
+            </div>
+          ))
         )}
       </div>
     </div>
