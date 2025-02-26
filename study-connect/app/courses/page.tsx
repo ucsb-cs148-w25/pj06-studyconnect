@@ -457,7 +457,7 @@ export default function ExploreCourses() {
 
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
-      <ClassesSidebar onClassSelectAction={setSelectedClassId} setSelectedClass={setSelectedClass} />
+      <ClassesSidebar onClassSelectAction={(e) => setSelectedClassId(e?.courseId ?? null)} />
       {/* left panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">
