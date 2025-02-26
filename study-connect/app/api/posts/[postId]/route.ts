@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { postId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
     const { postId } = await params;
@@ -57,7 +57,7 @@ export async function GET(
 // Add POST endpoint for creating new comments
 export async function POST(
   request: Request,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
     const { postId } = await params;
@@ -104,7 +104,7 @@ export async function POST(
 // Add new PUT endpoint for handling likes
 export async function PUT(
   request: Request,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
     const { postId } = await params;

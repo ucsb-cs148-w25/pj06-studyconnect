@@ -4,8 +4,9 @@ Thank you for testing our StudyConnect app!
 
 Instructions: First, go into the app blindly and just play around with the features as if you were a new user. 
 
-We have created a form for you to write your thoughts into as you go through the app here
-[Link here when form is done]
+We have created a form for you to write your thoughts into as you go through the app here:
+
+https://forms.gle/yANsnwo4WnJZ31Tz5
 
 **1. Ease of Use**
 When going through the webapp, did you have any difficulties...

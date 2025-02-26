@@ -21,8 +21,6 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     "https://m.media-amazon.com/images/I/71clqRcms1L.jpg"
   ]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const handleCourseClick = async (course: string) => {    
     const courseData = await fetchClassByCourseId(course, "20252");
     if (courseData) {
@@ -142,12 +140,12 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
           <div className="w-full mt-4">
             <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {user.joinedClasses.map((course) => (
-                <li key={course} className="text-gray-600 text-center">
+                <li key={course.courseId} className="text-gray-600 text-center">
                   <button
-                    onClick={() => handleCourseClick(course)}
+                    onClick={() => handleCourseClick(course.courseId, course.courseQuarter)}
                     className="px-4 py-2 bg-blue-950 text-amber-500 rounded-md hover:bg-blue-950"
                   >
-                    {course}
+                    {course.courseId}
                   </button>
                 </li>
               ))}

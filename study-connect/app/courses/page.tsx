@@ -5,17 +5,18 @@ import { auth } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, setDoc, collection } from 'firebase/firestore';
 import { SUBJECTCODES, QUARTERMAP } from "../utils/consts";
 import ClassesSidebar from '../components/ClassesSidebar'
 import { fetchProfessorsByDepartment } from "@/lib/fetchRMP";
-import { User, Class, Instructor, TimeLocation, JoinedClass, Professor } from '../utils/interfaces';
+import { User, Class, Instructor, TimeLocation, Professor, JoinedClass } from '../utils/interfaces';
 
 import { 
   Select, MenuItem, InputLabel, FormControl, TextField, SelectChangeEvent,
   Card, CardContent, Typography, Box, Button,
   selectClasses
 } from '@mui/material';
+import { fetchClassByCourseId } from "../utils/functions";
 
 export default function ExploreCourses() {
   const [error, setError] = useState<string>('');
@@ -25,6 +26,7 @@ export default function ExploreCourses() {
   const router = useRouter();
 
   const defaultClass: Class = {
+    courseQuarter: '20252',
     courseId: 'No Class',
     courseTitle: '',
     courseDescription: '',
@@ -41,7 +43,7 @@ export default function ExploreCourses() {
   const [classesError, setClassesError] = useState<boolean>(false);
   const [displayedClasses, setDisplayedClasses] = useState<Class[]>([]);
   const [professorData, setProfessorData] = useState<Professor[]>([]);
-  const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
+  const [joinedClasses, setJoinedClasses] = useState<Class[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
   const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
 
@@ -79,6 +81,7 @@ export default function ExploreCourses() {
       });
 
       return {
+        courseQuarter: cls.quarter,
         courseId: cls.courseId,
         courseTitle: cls.title,
         courseDescription: cls.description,
@@ -140,9 +143,11 @@ export default function ExploreCourses() {
       if (userDoc.exists()) {
         const userData = userDoc.data() as User;
         setUser(userData);
-        const classObjects = userData.joinedClasses.map(classId => ({
-          courseId: classId,
+        console.log("userData: ", userData);
+        const classObjects = await Promise.all(userData.joinedClasses.map(async (class_: JoinedClass) => {
+          return await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
         }));
+        console.log("classObjects", classObjects);
         const sortedClasses = classObjects.sort((a, b) => {
           const regex = /^([A-Za-z]+)\s*(\d+)$/;
           const matchA = a.courseId.match(regex);
@@ -302,7 +307,7 @@ export default function ExploreCourses() {
             style={{
               cursor: 'pointer',
               border: selectedClass.courseId === classObj.courseId ? '2px solid blue' : 'none',
-              backgroundColor: user && user.joinedClasses.some((cls) => cls === classObj.courseId) ? 'lightgreen' : 'white'
+              backgroundColor: user && user.joinedClasses.some((cls) => cls.courseId === classObj.courseId && cls.courseQuarter === classObj.courseQuarter) ? 'lightgreen' : 'white'
             }}
           >
             <CardContent>
@@ -364,7 +369,7 @@ export default function ExploreCourses() {
 
     let isJoined = false;
     if (user) {
-      isJoined = user.joinedClasses.some((cls) => cls === selectedClass.courseId);
+      isJoined = user.joinedClasses.some((cls) => cls.courseId === selectedClass.courseId && cls.courseQuarter === selectedClass.courseQuarter);
     }
 
     const joinButton = (
@@ -378,17 +383,17 @@ export default function ExploreCourses() {
               if (userDoc.exists()) {
                 console.log("User exists");
                 await updateDoc(userRef, {
-                  joinedClasses: arrayUnion(selectedClass.courseId)
+                  joinedClasses: arrayUnion({ courseId: selectedClass.courseId, courseQuarter: selectedClass.courseQuarter })
                 });
               } else {
                 await setDoc(userRef, {
-                  joinedClasses: [selectedClass.courseId]
+                  joinedClasses: [{ courseId: selectedClass.courseId, courseQuarter: selectedClass.courseQuarter }]
                 });
               }
 
               setUser({
                 ...user,
-                joinedClasses: [...user.joinedClasses, selectedClass.courseId]
+                joinedClasses: [...user.joinedClasses, { courseId: selectedClass.courseId, courseQuarter: selectedClass.courseQuarter }]
               });
             } catch (error) {
               console.error("Error updating document: ", error);
@@ -414,7 +419,7 @@ export default function ExploreCourses() {
                 const userData = userDoc.data();
                 if (userData && userData.joinedClasses) {
                   await updateDoc(userRef, {
-                    joinedClasses: arrayRemove(selectedClass.courseId)
+                    joinedClasses: arrayRemove({ courseId: selectedClass.courseId, courseQuarter: selectedClass.courseQuarter })
                   });
                 } else {
                   console.log("No joinedClasses field to remove from");
@@ -422,7 +427,7 @@ export default function ExploreCourses() {
 
                 setUser({
                   ...user,
-                  joinedClasses: user.joinedClasses.filter((cls) => cls !== selectedClass.courseId)
+                  joinedClasses: user.joinedClasses.filter((cls) => cls.courseId !== selectedClass.courseId && cls.courseQuarter !== selectedClass.courseQuarter)
                 });
               } else {
                 console.log("No such document!");
