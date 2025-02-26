@@ -21,8 +21,9 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     "https://m.media-amazon.com/images/I/71clqRcms1L.jpg"
   ]);
 
-  const handleCourseClick = async (course: string) => {    
-    const courseData = await fetchClassByCourseId(course, "20252");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleCourseClick = async (course: string, quarter: string) => {    
+    const courseData = await fetchClassByCourseId(course, quarter);
     if (courseData) {
       console.log("courseData: ", courseData);
       setSelectedCourse(courseData);
