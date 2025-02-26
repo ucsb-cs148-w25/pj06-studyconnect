@@ -3,31 +3,35 @@ import { useState } from 'react';
 import ClassesSidebar from './components/ClassesSidebar';
 import ClassForum from './components/ClassForum';
 import WebChat from './components/WebChat';
+import type { Class } from './utils/interfaces';
 
 export default function Home() {
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
 
   const handleCloseForum = () => {
-    setSelectedClassId(null);
+    setSelectedClass(null);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <ClassesSidebar onClassSelectAction={setSelectedClassId} />
+      <ClassesSidebar onClassSelectAction={setSelectedClass} />
 
       {/* Main content */}
       <div className="flex-1 p-8">
-        {selectedClassId ? (
+        {selectedClass ? (
           <div className="flex h-screen">
             <div className="w-3/5 p-4 border-r overflow-y-auto h-full">
-            <ClassForum 
-              selectedClassId={selectedClassId} 
-              onCloseAction={handleCloseForum}
-            />
+              <ClassForum 
+                selectedClassId={selectedClass.courseId} 
+                onCloseAction={handleCloseForum}
+              />
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
-            <WebChat/>
+              <WebChat selectedClass={{
+                courseId: selectedClass.courseId,
+                courseQuarter: selectedClass.courseQuarter
+              }} />
             </div>
           </div>
           
