@@ -17,6 +17,7 @@ const mockPosts = [
     authorId: 'user1',
     authorName: 'User One',
     classId: 'class1',
+    classQuarter: '20252',
     createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
   },
   {
@@ -26,6 +27,7 @@ const mockPosts = [
     authorId: 'user2',
     authorName: 'User Two',
     classId: 'class1',
+    classQuarter: '20252',
     createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
   },
 ]
@@ -61,11 +63,11 @@ describe('ClassForum Component', () => {
     });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
 
     // Verify that the component renders the expected text
     expect(screen.getByText('Class Forum - class1')).toBeInTheDocument();
@@ -95,7 +97,7 @@ describe('ClassForum Component', () => {
     });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     // Wait for the fetch call to complete
@@ -110,7 +112,7 @@ describe('ClassForum Component', () => {
     (global.fetch as jest.Mock).mockRejectedValue(new Error('Failed to fetch posts'));
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     // Wait for the fetch call to complete
@@ -127,7 +129,7 @@ describe('ClassForum Component', () => {
     });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Post Title'), { target: { value: 'New Post' } });
@@ -142,7 +144,7 @@ describe('ClassForum Component', () => {
     (createPost as jest.Mock).mockResolvedValue({ error: 'Failed to create post' });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Post Title'), { target: { value: 'New Post' } });

@@ -21,4 +21,6 @@
 
 ## Experiment/Change
 
-* Still doing experiment.
+* Our experiment was for everyone to keep the team updated on what was being worked on using the Kanban board to make more progress towards a more functional and complete app. I think we made good progress initially upon declaring the experiment and updating the Kanban board to have more issues and have issues for more people. But after we finished those issues, we did not immediately follow up with new ones so the experiment did not work as well as we had hoped it would.
+* However, we did make more progress between the time of starting the experiment and the time of this assessment, so I believe that updating the issues on the Kanban board at the start did help realign everyone's goals and what issues needed to be tackled. We also kept each other up to date on Slack on what was being worked on regularly and if tasks took longer than expected. People also did start another task after finishing the one they were currently working on, but it was not always reflected on the Kanban board.
+* Overall, I think the experiment did have a positive effect and we made more progress due to it, even if the Kanban board part of the experiment was not perfectly executed. Going forward, we will strive to keep the Kanban board updated along with continuing our regular updates and progress towards our complete app.

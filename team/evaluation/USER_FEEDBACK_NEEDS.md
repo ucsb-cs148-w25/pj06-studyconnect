@@ -2,7 +2,7 @@
 
 Thank you for testing our StudyConnect app! 
 
-Instructions: First, go into the app blindly and just play around with the features as if you were a new user. 
+Instructions: First, go into the app blindly and just play around with the features as if you were a new user. In order to have all users able to interact, we ask that you all please join the CS148 class!
 
 We have created a form for you to write your thoughts into as you go through the app here:
 

@@ -24,17 +24,20 @@ export default function Home() {
 
       {/* Main content */}
       <div className="flex-1 p-8">
-        {selectedClassId ? (
+        {selectedClassId && selectedClassQuarter ? (
           <div className="flex h-screen">
             <div className="w-3/5 p-4 border-r overflow-y-auto h-full">
             <ClassForum 
               selectedClassId={selectedClassId} 
-              selectedClassQuarter={selectedClassQuarter || ''}
+              selectedClassQuarter={selectedClassQuarter}
               onCloseAction={handleCloseForum}
             />
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
-            <WebChat/>
+              <WebChat selectedClass={{
+                courseId: selectedClassId ? selectedClassId : '',
+                courseQuarter: selectedClassId ? selectedClassId : '',
+              }} />
             </div>
           </div>
           

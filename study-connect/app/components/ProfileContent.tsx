@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { User, Class } from "../utils/interfaces";
 import { fetchClassByCourseId } from "../utils/functions";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { auth } from '../../lib/firebase';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
@@ -20,6 +20,12 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWNdZY6xKMtbXV8uiL_JeYrgR5Qos6HfIEbg&s",
     "https://m.media-amazon.com/images/I/71clqRcms1L.jpg"
   ]);
+
+  const uploadImgSrc = "https://www.shutterstock.com/image-vector/image-upload-iconsharingphoto-vector-illustration-260nw-1835553472.jpg";
+  const loadingGifSrc = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif";
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCourseClick = async (course: string, quarter: string) => {    
     const courseData = await fetchClassByCourseId(course, quarter);
@@ -57,6 +63,63 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
       handleClosePopup();
     }
   };
+
+  interface ProfilePictureUploadEvent extends React.ChangeEvent<HTMLInputElement> {
+    target: HTMLInputElement & EventTarget;
+  }
+
+  const handleProfilePictureUpload = async (event: ProfilePictureUploadEvent) => {
+    setIsUploadingImage(true);
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageUrl = await uploadToCloudinary(file);
+      handleSaveProfilePic(imageUrl);
+      setSelectedProfilePic(imageUrl);
+    }
+    setIsUploadingImage(false);
+  };
+
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "profile-picture");
+    formData.append("cloud_name", "dfminldiz");
+
+    const response = await fetch("https://api.cloudinary.com/v1_1/dfminldiz/image/upload", {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error("Cloudinary upload failed");
+    }
+
+    const data = await response.json();
+    return data.secure_url;
+  };
+
+  
+
+  const customProfilePicture = () => {
+    const currentSrc = isUploadingImage ? loadingGifSrc : uploadImgSrc;
+    return (
+      <div>
+        <img
+          src={currentSrc}
+          alt="Upload Profile Picture"
+          className="w-16 h-16 rounded-full object-cover cursor-pointer border-4 transition"
+          onClick={() => fileInputRef.current?.click()} // Ensure ref exists before calling click
+        />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={(event) => handleProfilePictureUpload(event)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -99,6 +162,12 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             </div>
           </div>
         </div>
+
+        <div className="bg-white shadow-md rounded-2xl p-6 mb-6">
+          <div className="break-words">
+              <span className="font-semibold">About me: </span>{user.aboutMe}
+          </div>
+      </div>
   
         {/* Joined Classes Section (Box 2) */}
         <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center">
@@ -193,6 +262,7 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             {/* Profile Pic Selection Grid */}
             {/* You can add your available profile pictures here */}
             <div className="grid grid-cols-5 gap-3 mt-4 gap-y-6">
+              {customProfilePicture()}
               {profilePics.map((pic) => (
               <img
                 key={pic}

@@ -77,8 +77,8 @@ Visit site at [localhost:3000](http://localhost:3000/)
 3. Search courses by subject code or course name
 
 # Known Problems
-1. Unique Course IDs for different quarters not yet implemented
-2. Chatroom backend not yet implemented
+1. Private DMs not Implemented
+2. UI/UX Improvements
 
 # Contributing
 1. Fork it!
