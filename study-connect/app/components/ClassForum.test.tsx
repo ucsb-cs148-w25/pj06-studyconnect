@@ -16,8 +16,7 @@ const mockPosts = [
     content: 'This is the first post',
     authorId: 'user1',
     authorName: 'User One',
-    classId: 'class1',
-    classQuarter: '20252',
+    classId: 'class1_20252',
     createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
   },
   {
@@ -26,8 +25,7 @@ const mockPosts = [
     content: 'This is the second post',
     authorId: 'user2',
     authorName: 'User Two',
-    classId: 'class1',
-    classQuarter: '20252',
+    classId: 'class1_20252',
     createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
   },
 ]

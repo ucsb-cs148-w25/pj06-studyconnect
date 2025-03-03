@@ -36,7 +36,7 @@ export default function Home() {
             <div className="w-2/5 p-4 overflow-y-auto h-full">
               <WebChat selectedClass={{
                 courseId: selectedClassId,
-                courseQuarter: selectedClassId,
+                courseQuarter: selectedClassQuarter,
               }} />
             </div>
           </div>

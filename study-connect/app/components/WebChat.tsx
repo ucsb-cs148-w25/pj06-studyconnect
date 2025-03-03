@@ -96,6 +96,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
 
   // Create a unique chat room ID using courseId and quarter
   const chatRoomId = `${selectedClass.courseId}_${selectedClass.courseQuarter}`
+  console.log("Chat room ID:", chatRoomId)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -149,6 +150,8 @@ export default function WebChat({ selectedClass }: WebChatProps) {
 
     try {
       const chatRoomRef = collection(db, 'chatRooms', chatRoomId, 'messages')
+
+      const course = selectedClass.courseId + "_" + selectedClass.courseQuarter
       
       await addDoc(chatRoomRef, {
         user: {
@@ -157,8 +160,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
         },
         content: newMessage.trim(),
         timestamp: serverTimestamp(),
-        courseId: selectedClass.courseId,
-        courseQuarter: selectedClass.courseQuarter
+        courseId: course
       })
       setNewMessage("")
     } catch (error) {

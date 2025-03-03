@@ -15,23 +15,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Class quarter is required' }, { status: 400 });
     }
 
-    console.log("classId", classId, " classQuarter", classQuarter)
+    const classId_Quarter = classId + "_" + classQuarter;
+
+    console.log("classId_Quarter: ", classId_Quarter);
 
     const postsSnapshot = await db
       .collection('posts')
-      .where('classId', '==', classId)
+      .where('classId', '==', classId_Quarter)
       .orderBy('createdAt', 'desc')
       .get();
-
-    console.log("postsSnapshot", postsSnapshot)
-
-    const postsSnapshot2 = await db
-      .collection('posts')
-      .where('classQuarter', '==', classQuarter)
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    console.log("postsSnapshot2", postsSnapshot2)
 
     const posts = postsSnapshot.docs.map(doc => {
       const data = doc.data();
@@ -41,8 +33,7 @@ export async function GET(request: Request) {
         content: data.content,
         authorId: data.authorId,
         authorName: data.authorName,
-        classId: data.classId,
-        classQuarter: data.classQuarter,
+        classId: data.classId_Quarter,
         createdAt: {
           _seconds: data.createdAt._seconds || data.createdAt.seconds || 0,
           _nanoseconds: data.createdAt._nanoseconds || data.createdAt.nanoseconds || 0

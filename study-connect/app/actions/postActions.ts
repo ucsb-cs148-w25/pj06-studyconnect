@@ -36,11 +36,12 @@ export async function createPost(formData: FormData) {
         return { error: 'User data not found' };
       }
 
+      const classId_Quarter = classId.trim() + '_' + classQuarter.trim();
+
       const postData = {
         title,
         content,
-        classId: classId.trim(), // Ensure consistent classId format
-        classQuarter: classQuarter.trim(), // Ensure consistent classQuarter format
+        classId: classId_Quarter,
         authorId: decodedClaim.uid,
         authorName: userData.name || 'Anonymous',
         createdAt: Timestamp.now(),

@@ -12,7 +12,6 @@ interface Post {
   authorId: string;
   authorName: string;
   classId: string;
-  classQuarter: string;
   createdAt: {
     _seconds: number;
     _nanoseconds: number;
