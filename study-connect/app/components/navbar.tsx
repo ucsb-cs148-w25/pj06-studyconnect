@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from 'next/link';gi
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -58,10 +58,10 @@ export const Navbar = () => {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 if (!userData.name || !userData.grade || !userData.major) {
-                    router.push('/profile');
+                    router.push('/profile/edit');
                 }
             } else {
-                router.push('/profile');
+                router.push('/profile/edit');
             }
         } catch (error) {
             setError('Failed to sign in. Please try again.');
