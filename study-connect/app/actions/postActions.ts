@@ -20,10 +20,11 @@ export async function createPost(formData: FormData) {
       const title = formData.get('title') as string;
       const content = formData.get('content') as string;
       const classId = formData.get('classId') as string;
+      const classQuarter = formData.get('classQuarter') as string;
 
-      console.log('Creating post with data:', { title, content, classId }); // Debug log
+      console.log('Creating post with data:', { title, content, classId, classQuarter }); // Debug log
 
-      if (!title || !content || !classId) {
+      if (!title || !content || !classId || !classQuarter) {
         return { error: 'Missing required fields' };
       }
 
@@ -35,10 +36,12 @@ export async function createPost(formData: FormData) {
         return { error: 'User data not found' };
       }
 
+      const classId_Quarter = classId.trim() + '_' + classQuarter.trim();
+
       const postData = {
         title,
         content,
-        classId: classId.trim(), // Ensure consistent classId format
+        classId: classId_Quarter,
         authorId: decodedClaim.uid,
         authorName: userData.name || 'Anonymous',
         createdAt: Timestamp.now(),

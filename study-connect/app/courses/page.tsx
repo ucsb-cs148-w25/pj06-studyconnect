@@ -45,7 +45,8 @@ export default function ExploreCourses() {
   const [professorData, setProfessorData] = useState<Professor[]>([]);
   const [joinedClasses, setJoinedClasses] = useState<Class[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(selectedClass.courseId);
-  const [selectedQuarter, setSelectedQuarter] = useState<string>('20252');
+  const [selectedClassQuarter, setSelectedClassQuarter] = useState<string | null>(selectedClass.courseQuarter);
+  const [selectedQuarter, setSelectedQuarter] = useState<string | null>('20252');
 
 
   const fetchClasses = async (response: any) => {
@@ -457,7 +458,7 @@ export default function ExploreCourses() {
 
   return (
     <div className="flex flex-row items-stretch justify-center min-h-screen w-screen bg-gray-50">
-      <ClassesSidebar onClassSelectAction={(e) => setSelectedClassId(e?.courseId ?? null)} />
+      <ClassesSidebar setSelectedClassId={setSelectedClassId} setSelectedClassQuarter={setSelectedClassQuarter} setSelectedClass={setSelectedClass} />
       {/* left panel */}
       <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto">
         <div className="text-center">
@@ -465,7 +466,7 @@ export default function ExploreCourses() {
             Explore Classes for{' '}
             <select
               className="bg-white text-gray-900 font-semibold ml-2"
-              value={selectedQuarter.slice(4)}
+              value={selectedQuarter ? selectedQuarter.slice(4) : ""}
               onChange={(e) => {
                 setSelectedQuarter("2025" + e.target.value);
               }}

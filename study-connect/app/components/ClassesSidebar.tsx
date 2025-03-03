@@ -4,12 +4,16 @@ import { auth, db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { User, JoinedClass, Class } from '../utils/interfaces';
 import { fetchClassByCourseId } from '../utils/functions';
+import { QUARTERMAP } from '../utils/consts';
+import { set } from 'cypress/types/lodash';
 
 interface ClassesSidebarProps {
-  onClassSelectAction: (class_: Class | null) => void;
+  setSelectedClassId: (class_: string | null) => void;
+  setSelectedClassQuarter: (quarter: string | null) => void;
+  setSelectedClass?: (class_: Class) => void;
 }
 
-export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarProps) {
+export default function ClassesSidebar({ setSelectedClassId, setSelectedClassQuarter, setSelectedClass }: ClassesSidebarProps) {
   const [user, setUser] = useState<User | null>(null);
   const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +65,15 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
     return unsubscribe;
   }, [joinedClasses]);
 
+  const groupedClasses = joinedClasses.reduce((acc, class_) => {
+    const quarter = class_.courseQuarter;
+    if (!acc[quarter]) {
+      acc[quarter] = [];
+    }
+    acc[quarter].push(class_);
+    return acc;
+  }, {} as Record<string, JoinedClass[]>);
+
   return (
     <div className="w-64 bg-white shadow-md sticky top-0 h-1">
       <div className="p-4 border-b">
@@ -76,20 +89,34 @@ export default function ClassesSidebar({ onClassSelectAction }: ClassesSidebarPr
         ) : joinedClasses.length === 0 ? (
           <p className="text-gray-600 text-sm">No classes joined yet</p>
         ) : (
-          <ul className="space-y-2">
-            {joinedClasses.sort().map((class_) => (
-              <li
-                key={class_.courseId}
-                className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
-                onClick={async () => {
-                  const classData = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
-                  onClassSelectAction(classData);
-                }}
-              >
-                <span className="text-gray-800">{class_.courseId}</span>
-              </li>
-            ))}
-          </ul>
+          Object.keys(groupedClasses).map((quarter) => (
+            <div key={quarter}>
+              <h3 className="text-gray-600 text-md font-semibold">{QUARTERMAP[quarter[quarter.length - 1] as keyof typeof QUARTERMAP]} {quarter.substring(0, 4)}</h3>
+              <hr className="my-2" />
+              <ul className="space-y-2">
+                {groupedClasses[quarter].map((class_) => (
+                  <li
+                    key={class_.courseId}
+                    className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                    onClick={async () => {
+                      if (setSelectedClassId && setSelectedClassQuarter) {
+                        const clas: Class = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
+                        console.log("clas", clas);
+                        setSelectedClassId(clas.courseId)
+                        setSelectedClassQuarter(clas.courseQuarter);
+                        if (setSelectedClass) {
+                          setSelectedClass(clas);
+                        }
+                      }
+                    }}
+                  >
+                    <span className="text-gray-800">{class_.courseId}</span>
+                  </li>
+                ))}
+              </ul>
+              <hr className="my-2" />
+            </div>
+          ))
         )}
       </div>
     </div>

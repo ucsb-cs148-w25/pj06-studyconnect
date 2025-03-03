@@ -16,7 +16,7 @@ const mockPosts = [
     content: 'This is the first post',
     authorId: 'user1',
     authorName: 'User One',
-    classId: 'class1',
+    classId: 'class1_20252',
     createdAt: { _seconds: 1620000000, _nanoseconds: 0 },
   },
   {
@@ -25,7 +25,7 @@ const mockPosts = [
     content: 'This is the second post',
     authorId: 'user2',
     authorName: 'User Two',
-    classId: 'class1',
+    classId: 'class1_20252',
     createdAt: { _seconds: 1620003600, _nanoseconds: 0 },
   },
 ]
@@ -61,14 +61,14 @@ describe('ClassForum Component', () => {
     });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
 
     // Verify that the component renders the expected text
-    expect(screen.getByText('Class Forum - class1')).toBeInTheDocument();
+    expect(screen.getByText('Class Forum - class1 Spring 2025')).toBeInTheDocument();
   });
 
   test('fetch is mocked properly', async () => {
@@ -95,11 +95,11 @@ describe('ClassForum Component', () => {
     });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
 
     // TODO Verify that the posts are displayed
     await waitFor(() => expect(screen.getByText('First Post')).toBeInTheDocument());
@@ -110,11 +110,11 @@ describe('ClassForum Component', () => {
     (global.fetch as jest.Mock).mockRejectedValue(new Error('Failed to fetch posts'));
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
 
     // Verify that the error message is displayed
     await waitFor(() => expect(screen.getByText('Failed to load posts')).toBeInTheDocument());
@@ -127,7 +127,7 @@ describe('ClassForum Component', () => {
     });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Post Title'), { target: { value: 'New Post' } });
@@ -142,7 +142,7 @@ describe('ClassForum Component', () => {
     (createPost as jest.Mock).mockResolvedValue({ error: 'Failed to create post' });
 
     await act(async () => {
-      render(<ClassForum selectedClassId="class1" onCloseAction={() => {}} />);
+      render(<ClassForum selectedClassId="class1" selectedClassQuarter="20252" onCloseAction={() => {}} />);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Post Title'), { target: { value: 'New Post' } });

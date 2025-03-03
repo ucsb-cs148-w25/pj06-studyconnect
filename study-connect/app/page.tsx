@@ -3,34 +3,40 @@ import { useState } from 'react';
 import ClassesSidebar from './components/ClassesSidebar';
 import ClassForum from './components/ClassForum';
 import WebChat from './components/WebChat';
-import type { Class } from './utils/interfaces';
+import { db } from '../lib/firebase-admin';
+import { set } from 'cypress/types/lodash';
+import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+
 
 export default function Home() {
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [selectedClassQuarter, setSelectedClassQuarter] = useState<string | null>(null);
 
   const handleCloseForum = () => {
-    setSelectedClass(null);
+    setSelectedClassId(null);
+    setSelectedClassQuarter(null);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <ClassesSidebar onClassSelectAction={setSelectedClass} />
+      <ClassesSidebar setSelectedClassId={setSelectedClassId} setSelectedClassQuarter={setSelectedClassQuarter} />
 
       {/* Main content */}
       <div className="flex-1 p-8">
-        {selectedClass ? (
+        {selectedClassId && selectedClassQuarter ? (
           <div className="flex h-screen">
             <div className="w-3/5 p-4 border-r overflow-y-auto h-full">
-              <ClassForum 
-                selectedClassId={selectedClass.courseId} 
-                onCloseAction={handleCloseForum}
-              />
+            <ClassForum 
+              selectedClassId={selectedClassId} 
+              selectedClassQuarter={selectedClassQuarter}
+              onCloseAction={handleCloseForum}
+            />
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
               <WebChat selectedClass={{
-                courseId: selectedClass.courseId,
-                courseQuarter: selectedClass.courseQuarter
+                courseId: selectedClassId,
+                courseQuarter: selectedClassQuarter,
               }} />
             </div>
           </div>

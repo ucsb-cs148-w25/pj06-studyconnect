@@ -38,6 +38,7 @@ export async function GET(
       authorId: data?.authorId,
       authorName: data?.authorName,
       classId: data?.classId,
+      classQuarter: data?.classQuarter,
       likes: data?.likes || 0,
       likedBy: data?.likedBy || [],
       createdAt: {

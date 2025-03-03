@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createPost } from '../actions/postActions';
+import { QUARTERMAP } from '../utils/consts';
 
 interface Post {
   id: string;
@@ -21,10 +22,11 @@ interface Post {
 
 interface ClassForumProps {
   selectedClassId: string;
+  selectedClassQuarter: string;
   onCloseAction: () => void;
 }
 
-export default function ClassForum({ selectedClassId, onCloseAction }: ClassForumProps) {
+export default function ClassForum({ selectedClassId, selectedClassQuarter, onCloseAction }: ClassForumProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,9 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
   const fetchPostsData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/posts?classId=${selectedClassId}`);
+      console.log('classId:', selectedClassId); // Debug log
+      console.log(`&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "no quarter found"}`);
+      const response = await fetch(`/api/posts?classId=${selectedClassId}&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "20251"}`);
       if (!response.ok) {
         throw new Error('Failed to fetch posts');
       }
@@ -55,10 +59,10 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
   };
 
   useEffect(() => {
-    if (selectedClassId) {
+    if (selectedClassId && selectedClassQuarter) {
       fetchPostsData();
     }
-  }, [selectedClassId]);
+  }, [selectedClassId, selectedClassQuarter]);
 
   const formatDate = (timestamp: Post['createdAt']) => {
     if (!timestamp) return '';
@@ -75,7 +79,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
   return (
     <div className="p-6 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-black">Class Forum - {selectedClassId}</h2>
+        <h2 className="text-2xl font-bold text-black">Class Forum - {selectedClassId} {selectedClassQuarter && QUARTERMAP[selectedClassQuarter[selectedClassQuarter.length - 1] as keyof typeof QUARTERMAP]} {selectedClassQuarter && selectedClassQuarter.substring(0, 4)}</h2>
         <button
           onClick={onCloseAction}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -120,6 +124,7 @@ export default function ClassForum({ selectedClassId, onCloseAction }: ClassForu
         className="mb-8 space-y-4"
       >
         <input type="hidden" name="classId" value={selectedClassId} />
+        <input type="hidden" name="classQuarter" value={selectedClassQuarter} />
         
         <div>
           <input

@@ -58,10 +58,10 @@ export const Navbar = () => {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 if (!userData.name || !userData.grade || !userData.major) {
-                    router.push('/profile');
+                    router.push('/profile/edit');
                 }
             } else {
-                router.push('/profile');
+                router.push('/profile/edit');
             }
         } catch (error) {
             setError('Failed to sign in. Please try again.');
