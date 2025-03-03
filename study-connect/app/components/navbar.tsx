@@ -58,10 +58,10 @@ export const Navbar = () => {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 if (!userData.name || !userData.grade || !userData.major) {
-                    router.push('/profile/edit');
+                    router.push('/profile');
                 }
             } else {
-                router.push('/profile/edit');
+                router.push('/profile');
             }
         } catch (error) {
             setError('Failed to sign in. Please try again.');
@@ -80,19 +80,19 @@ export const Navbar = () => {
     };
 
     return (
-        <nav className="bg-blue-950 text-amber-500 p-4 sm:p-6">
+        <nav className="bg-white text-black p-4 sm:p-6">
             <div className="container mx-auto flex justify-between items-center">
-                <Link href="/" className="text-2xl font-bold">
-                    StudyConnect
+                <Link href="/" className="text-3xl font-bold">
+                    study-connect
                 </Link>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-8">
                     {user ? (
                         <>
-                            <Link href="/courses" className="hover:text-gray-300">
-                                Courses
+                            <Link href="/courses" className="hover:text-blue-300 text-2xl">
+                                courses
                             </Link>
-                            <Link href="/profile" className="hover:text-gray-300">
-                                Profile
+                            <Link href="/profile" className="hover:text-blue-300 text-2xl"> 
+                                profile
                             </Link>
                             <button
                                 onClick={handleSignOut}
