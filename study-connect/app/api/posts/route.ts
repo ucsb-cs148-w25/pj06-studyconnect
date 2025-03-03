@@ -4,8 +4,8 @@ import { db } from '../../../lib/firebase-admin';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const classId = searchParams.get('classId');
-    const classQuarter = searchParams.get('classQuarter');
+    const classId = searchParams.get('classId')?.trim();
+    const classQuarter = searchParams.get('classQuarter')?.trim();
 
     if (!classId) {
       return NextResponse.json({ error: 'Class ID is required' }, { status: 400 });
@@ -20,9 +20,18 @@ export async function GET(request: Request) {
     const postsSnapshot = await db
       .collection('posts')
       .where('classId', '==', classId)
+      .orderBy('createdAt', 'desc')
+      .get();
+
+    console.log("postsSnapshot", postsSnapshot)
+
+    const postsSnapshot2 = await db
+      .collection('posts')
       .where('classQuarter', '==', classQuarter)
       .orderBy('createdAt', 'desc')
       .get();
+
+    console.log("postsSnapshot2", postsSnapshot2)
 
     const posts = postsSnapshot.docs.map(doc => {
       const data = doc.data();

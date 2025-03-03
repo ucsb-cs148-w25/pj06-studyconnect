@@ -20,7 +20,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <ClassesSidebar onClassSelectAction={setSelectedClassId} />
+      <ClassesSidebar setSelectedClassId={setSelectedClassId} setSelectedClassQuarter={setSelectedClassQuarter} />
 
       {/* Main content */}
       <div className="flex-1 p-8">
@@ -35,8 +35,8 @@ export default function Home() {
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
               <WebChat selectedClass={{
-                courseId: selectedClassId ? selectedClassId : '',
-                courseQuarter: selectedClassId ? selectedClassId : '',
+                courseId: selectedClassId,
+                courseQuarter: selectedClassId,
               }} />
             </div>
           </div>

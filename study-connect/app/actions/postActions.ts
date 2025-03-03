@@ -40,7 +40,7 @@ export async function createPost(formData: FormData) {
         title,
         content,
         classId: classId.trim(), // Ensure consistent classId format
-        classQuarter: classQuarter, // Ensure consistent classQuarter format
+        classQuarter: classQuarter.trim(), // Ensure consistent classQuarter format
         authorId: decodedClaim.uid,
         authorName: userData.name || 'Anonymous',
         createdAt: Timestamp.now(),

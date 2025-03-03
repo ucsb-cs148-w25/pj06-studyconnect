@@ -37,7 +37,7 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
     setLoading(true);
     try {
       console.log('classId:', selectedClassId); // Debug log
-      console.log(`&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "20251"}`);
+      console.log(`&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "no quarter found"}`);
       const response = await fetch(`/api/posts?classId=${selectedClassId}&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "20251"}`);
       if (!response.ok) {
         throw new Error('Failed to fetch posts');
@@ -60,10 +60,10 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
   };
 
   useEffect(() => {
-    if (selectedClassId) {
+    if (selectedClassId && selectedClassQuarter) {
       fetchPostsData();
     }
-  }, [selectedClassId]);
+  }, [selectedClassId, selectedClassQuarter]);
 
   const formatDate = (timestamp: Post['createdAt']) => {
     if (!timestamp) return '';
@@ -125,6 +125,7 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
         className="mb-8 space-y-4"
       >
         <input type="hidden" name="classId" value={selectedClassId} />
+        <input type="hidden" name="classQuarter" value={selectedClassQuarter} />
         
         <div>
           <input

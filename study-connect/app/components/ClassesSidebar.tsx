@@ -8,11 +8,12 @@ import { QUARTERMAP } from '../utils/consts';
 import { set } from 'cypress/types/lodash';
 
 interface ClassesSidebarProps {
-  onClassSelectAction: (classId: string | null) => void;
+  setSelectedClassId: (class_: string | null) => void;
+  setSelectedClassQuarter: (quarter: string | null) => void;
   setSelectedClass?: (class_: Class) => void;
 }
 
-export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }: ClassesSidebarProps) {
+export default function ClassesSidebar({ setSelectedClassId, setSelectedClassQuarter, setSelectedClass }: ClassesSidebarProps) {
   const [user, setUser] = useState<User | null>(null);
   const [joinedClasses, setJoinedClasses] = useState<JoinedClass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,10 +99,14 @@ export default function ClassesSidebar({ onClassSelectAction, setSelectedClass }
                     key={class_.courseId}
                     className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
                     onClick={async () => {
-                      onClassSelectAction(class_.courseId)
-                      if (setSelectedClass) {
-                        const clas = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
-                        setSelectedClass(clas);
+                      if (setSelectedClassId && setSelectedClassQuarter) {
+                        const clas: Class = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
+                        console.log("clas", clas);
+                        setSelectedClassId(clas.courseId)
+                        setSelectedClassQuarter(clas.courseQuarter);
+                        if (setSelectedClass) {
+                          setSelectedClass(clas);
+                        }
                       }
                     }}
                   >
