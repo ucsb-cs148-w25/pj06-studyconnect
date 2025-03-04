@@ -381,6 +381,9 @@ export default function ExploreCourses() {
               const userRef = doc(db, "users", userId);
               const userDoc = await getDoc(userRef);
               console.log(userDoc);
+              const courseRef = doc(db, "courses", selectedClass.courseId + "_" + selectedClass.courseQuarter);
+              const courseDoc = await getDoc(courseRef);
+              console.log(courseDoc);
               if (userDoc.exists()) {
                 console.log("User exists");
                 await updateDoc(userRef, {
@@ -389,6 +392,17 @@ export default function ExploreCourses() {
               } else {
                 await setDoc(userRef, {
                   joinedClasses: [{ courseId: selectedClass.courseId, courseQuarter: selectedClass.courseQuarter }]
+                });
+              }
+
+              if (courseDoc.exists()) {
+                console.log("Course exists");
+                await updateDoc(courseRef, {
+                  members: arrayUnion(userId)
+                });
+              } else {
+                await setDoc(courseRef, {
+                  members: [userId]
                 });
               }
 
@@ -415,7 +429,9 @@ export default function ExploreCourses() {
             try {
               const userRef = doc(db, "users", userId);
               const userDoc = await getDoc(userRef);
-
+              const courseRef = doc(db, "courses", selectedClass.courseId + "_" + selectedClass.courseQuarter);
+              const courseDoc = await getDoc(courseRef);
+              console.log(courseDoc);
               if (userDoc.exists()) {
                 const userData = userDoc.data();
                 if (userData && userData.joinedClasses) {
@@ -429,6 +445,13 @@ export default function ExploreCourses() {
                 setUser({
                   ...user,
                   joinedClasses: user.joinedClasses.filter((cls) => cls.courseId !== selectedClass.courseId && cls.courseQuarter !== selectedClass.courseQuarter)
+                });
+              } else {
+                console.log("No such document!");
+              }
+              if (courseDoc.exists()) {
+                await updateDoc(courseRef, {
+                  members: arrayRemove(userId)
                 });
               } else {
                 console.log("No such document!");

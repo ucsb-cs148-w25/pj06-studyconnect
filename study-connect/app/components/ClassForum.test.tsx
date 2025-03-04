@@ -65,7 +65,7 @@ describe('ClassForum Component', () => {
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1_20252'));
 
     // Verify that the component renders the expected text
     expect(screen.getByText('Class Forum - class1 Spring 2025')).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('ClassForum Component', () => {
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1_20252'));
 
     // TODO Verify that the posts are displayed
     await waitFor(() => expect(screen.getByText('First Post')).toBeInTheDocument());
@@ -114,7 +114,7 @@ describe('ClassForum Component', () => {
     });
 
     // Wait for the fetch call to complete
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1&classQuarter=20252'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/posts?classId=class1_20252'));
 
     // Verify that the error message is displayed
     await waitFor(() => expect(screen.getByText('Failed to load posts')).toBeInTheDocument());
