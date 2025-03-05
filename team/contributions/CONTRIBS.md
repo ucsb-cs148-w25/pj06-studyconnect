@@ -34,7 +34,13 @@ Wrote some user stories on Kanban board and made sure they had acceptance criter
 ...
 
 ### Wesley
-...
+Developed initial Explore Classes page to allow users to add classes
+
+Added basic Jest unit testing to verify functionality of class forums page
+
+Added support for uploading custom profile picture by integrating with Cloudinary project to store images
+
+Filled out README documentation
 
 ### Zhenyu
 ...
