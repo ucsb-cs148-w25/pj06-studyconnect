@@ -11,7 +11,7 @@ interface ClassMembersProps {
 export default function ClassMembers({ selectedClass }: ClassMembersProps) {
   const [selectedClassId, setSelectedClassId] = useState<string>(selectedClass.courseId);
   const [selectedClassQuarter, setSelectedClassQuarter] = useState<string>(selectedClass.courseQuarter);
-  const [courseMembers, setCourseMembers] = useState<{ name: string; profilePic: string }[]>([]);
+  const [courseMembers, setCourseMembers] = useState<{ name: string; profilePic: string; userId: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +32,7 @@ export default function ClassMembers({ selectedClass }: ClassMembersProps) {
                 memberData.push({
                   name: userData.name,
                   profilePic: userData.profilePic,
+                  userId: member
                 });
               }
             }
@@ -72,7 +73,7 @@ export default function ClassMembers({ selectedClass }: ClassMembersProps) {
               </Avatar>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center">
-                  <span className="font-semibold text-gray-600">{member.name}</span>
+                  <a href={`/profile/${member.userId}`} className="font-semibold text-gray-600 hover:underline">{member.name}</a>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ type Message = {
   id: string
   user: {
     name: string
+    userId: string
     avatar: string
   }
   content: string
@@ -21,7 +22,7 @@ type Message = {
 const initialMessages: Message[] = [
   {
     id: "1",
-    user: { name: "Alice", avatar: "/placeholder.svg?height=40&width=40" },
+    user: { name: "Alice", userId: "testId1", avatar: "/placeholder.svg?height=40&width=40" },
     content: "Hey everyone! How's it going?",
     timestamp: "2:30 PM",
     courseId: "class1",
@@ -29,7 +30,7 @@ const initialMessages: Message[] = [
   },
   {
     id: "2",
-    user: { name: "Bob", avatar: "/placeholder.svg?height=40&width=40" },
+    user: { name: "Bob", userId: "testId2", avatar: "/placeholder.svg?height=40&width=40" },
     content: "Hi Alice! All good here. How about you?",
     timestamp: "2:32 PM",
     courseId: "class1",
@@ -37,7 +38,7 @@ const initialMessages: Message[] = [
   },
   {
     id: "3",
-    user: { name: "Charlie", avatar: "/placeholder.svg?height=40&width=40" },
+    user: { name: "Charlie", userId: "testId3", avatar: "/placeholder.svg?height=40&width=40" },
     content: "Hello folks! Just joined the chat.",
     timestamp: "2:35 PM",
     courseId: "class1",
@@ -91,7 +92,7 @@ function formatQuarter(quarterCode: string): string {
 export default function WebChat({ selectedClass }: WebChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
-  const [userData, setUserData] = useState<{ name: string; profilePic: string } | null>(null)
+  const [userData, setUserData] = useState<{ name: string; profilePic: string; userId: string } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Create a unique chat room ID using courseId and quarter
@@ -112,6 +113,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
             const data = userDoc.data();
             setUserData({
               name: data.name || 'Anonymous',
+              userId: user.uid, 
               profilePic: data.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
             });
           }
@@ -156,6 +158,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
       await addDoc(chatRoomRef, {
         user: {
           name: userData.name,
+          userId: userData.userId,
           avatar: userData.profilePic
         },
         content: newMessage.trim(),
@@ -183,7 +186,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
             </Avatar>
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
-                <span className="font-semibold text-gray-600">{message.user.name}</span>
+                <a href={`/profile/${message.user.userId}`} className="font-semibold text-gray-600 hover:underline">{message.user.name}</a> 
                 <span className="text-xs text-gray-600 text-muted-foreground ml-2">
                   {formatTimestamp(message.timestamp)}
                 </span>

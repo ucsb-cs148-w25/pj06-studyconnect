@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { User, Class } from "../utils/interfaces";
+import { useRouter } from "next/navigation";
 import { fetchClassByCourseId } from "../utils/functions";
 import { useRef, useState } from "react";
 import { auth } from '../../lib/firebase';
@@ -7,6 +8,11 @@ import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 export default function ProfileContent({ user, setUser }: { user: User, setUser: (user: User) => void }) {
   const db = getFirestore();
+
+  const router = useRouter();
+  const authUser = auth.currentUser;
+  const isOwnProfile = authUser?.uid === user.userId; // True if viewing own profile
+  // console.log("user.uid: ", user.userID);
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isProfilePicPopupOpen, setIsProfilePicPopupOpen] = useState(false);
@@ -33,6 +39,14 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
       console.log("courseData: ", courseData);
       setSelectedCourse(courseData);
       setIsPopupOpen(true);
+    }
+  };
+
+  const handleUserClick = (uid: string) => {
+    if (uid !== authUser?.uid) {
+      router.push(`/profile/${uid}`);
+    } else {
+      router.push(`/profile`);
     }
   };
 
@@ -151,9 +165,12 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             <div className="w-2/3 flex flex-col justify-center px-6">
               <div className="flex justify-between w-full">
                 <h2 className="text-gray-600 text-xl font-bold">{user.name}</h2>
-                <Link href="/profile/edit" className="text-xs text-amber-500 bg-blue-950 border border-black-500 rounded px-4 py-2">
-                  Edit Profile
-                </Link>
+                {/* Show EDIT BUTTON only if the current user matches the profile page */}
+                {isOwnProfile && (
+                  <Link href="/profile/edit" className="text-xs text-amber-500 bg-blue-950 border border-black-500 rounded px-4 py-2">
+                    Edit Profile
+                  </Link>
+                )}
               </div>
               <p className="text-gray-600">Email: {user.email}</p>
               <p className="text-gray-600">Grade: {user.grade}</p>

@@ -31,7 +31,9 @@ export default function Profile() {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 console.log("userData: ", userData);
+                console.log("user.uid in profile page: ", user.uid); 
                 setUser({
+                    userID: user.uid || '',
                     name: userData.name || '',
                     email: user.email || '',
                     grade: userData.grade || '',
