@@ -8,6 +8,8 @@ export interface User {
     joinedClasses: JoinedClass[];
     profilePic: string;
     aboutMe: string;
+    friends: string[]; // Array of friend user IDs
+    friendRequests: FriendRequest[]; // Array of pending friend requests
 }
 
 export interface Class {
@@ -57,3 +59,12 @@ export type Professor = {
   wouldTakeAgainPercent: number;
   commentsSummarizedByGPT: string;
 };
+
+export interface FriendRequest {
+    requestId: string;
+    fromUserId: string;
+    fromUserName: string;
+    fromUserProfilePic: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    timestamp: number;
+}
