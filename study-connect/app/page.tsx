@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ClassesSidebar from './components/ClassesSidebar';
 import ClassForum from './components/ClassForum';
 import WebChat from './components/WebChat';
+import ClassMembers from './components/ClassMembers';
 import { db } from '../lib/firebase-admin';
 import { set } from 'cypress/types/lodash';
 import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
@@ -27,16 +28,16 @@ export default function Home() {
         {selectedClassId && selectedClassQuarter ? (
           <div className="flex h-screen">
             <div className="w-3/5 p-4 border-r overflow-y-auto h-full">
-            <ClassForum 
-              selectedClassId={selectedClassId} 
-              selectedClassQuarter={selectedClassQuarter}
-              onCloseAction={handleCloseForum}
-            />
+              <ClassForum 
+                selectedClassId={selectedClassId} 
+                selectedClassQuarter={selectedClassQuarter}
+                onCloseAction={handleCloseForum}
+              />
             </div>
             <div className="w-2/5 p-4 overflow-y-auto h-full">
               <WebChat selectedClass={{
                 courseId: selectedClassId,
-                courseQuarter: selectedClassQuarter,
+                courseQuarter: selectedClassQuarter
               }} />
             </div>
           </div>
