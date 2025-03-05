@@ -33,7 +33,7 @@ export default function Profile() {
                 console.log("userData: ", userData);
                 console.log("user.uid in profile page: ", user.uid); 
                 setUser({
-                    userID: user.uid || '',
+                    userId: user.uid || '',
                     name: userData.name || '',
                     email: user.email || '',
                     grade: userData.grade || '',
