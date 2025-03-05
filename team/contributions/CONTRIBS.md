@@ -17,7 +17,18 @@ Focused on UI updates to application
 ...
 
 ### Maria
-...
+
+PRs shown on github, mostly worked on some front-end components and helped with UI decisions along with rest of group
+
+Wrote up team decision on Testing and implemented cypress e2e testing into the codebase before we decided to drop it
+
+Wrote up User Feedback Needs and wrote down group summary of plan of action in Eval Response 
+
+Created and helped write up Design Document (Design Process and User Experience/User Flow Sections, with Shelly's help)
+
+Created and maintained User Manual
+
+Wrote some user stories on Kanban board and made sure they had acceptance criteria in the description
 
 ### Shelly
 ...
