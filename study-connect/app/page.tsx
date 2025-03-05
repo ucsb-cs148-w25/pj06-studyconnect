@@ -40,12 +40,6 @@ export default function Home() {
                 courseQuarter: selectedClassQuarter
               }} />
             </div>
-            {/* <div className="w-2/8 p-4 overflow-y-auto h-full">
-              <ClassMembers selectedClass={{
-                courseId: selectedClassId,
-                courseQuarter: selectedClassQuarter
-              }} />
-            </div> */}
           </div>
           
         ) : (
