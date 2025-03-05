@@ -187,7 +187,8 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
             
             <div className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
-              <span className="font-medium text-gray-900">{post.authorName}</span>
+              {/* Change author name to a clickable link to author profile */}
+              <a href={`/profile/${post.authorId}`} className="font-medium text-gray-900 hover:underline">{post.authorName}</a> 
               <span>•</span>
               <time dateTime={new Date(post.createdAt._seconds * 1000).toISOString()}>
                 {formatDate(post.createdAt)}
