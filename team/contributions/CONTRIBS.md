@@ -13,6 +13,8 @@ Created Figma
 
 Focused on UI updates to application
 
+Helped write up Design Document (Design Process and User Experience Sections)
+
 ### Hannah
 ...
 
