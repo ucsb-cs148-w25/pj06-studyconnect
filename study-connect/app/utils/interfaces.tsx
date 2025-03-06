@@ -8,8 +8,8 @@ export interface User {
     joinedClasses: JoinedClass[];
     profilePic: string;
     aboutMe: string;
-    friends: string[]; // Array of friend user IDs
-    friendRequests: FriendRequest[]; // Array of pending friend requests
+    friends: string[]; 
+    friendRequests: FriendRequest[]; 
 }
 
 export interface Class {
