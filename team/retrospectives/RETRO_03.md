@@ -6,21 +6,37 @@
 
 ## Action item
 
-* Goal: Each member of the team should keep everyone up to date on what they are currently working on using the Kanban board as we work towards putting everything together for a more functional and complete app.
+* Goal: Each member of the team should keep everyone on the same page about what they are currently working on using the Kanban board even for non-coding tasks for better task management. New UI designs should be discussed in Figma before implementation. Start planning the final presentation and the envisioned final product. 
 
-* Change/Experiment: Keep the Kanban board updated with what we are working on. Everyone should have a task at all times, and let people know if the task is taking longer than expected.
+* Change/Experiment: We will enforce a habit of updating the Kanban board regularly by ensuring that each team member moves tasks through the appropriate columns and adds brief status updates as necessary. We will also add non-coding tasks to the board to track everyone's contributions. We will discuss UI implementations on Figma more actively. PRs should be reviewed promptly and more carefully.
 
-* Measurement: Everyone should be assigned to one issue on the Kanban board at all times. If an issue is completed by someone and the PR is merged, then that person should be assigned to another task. There is communication on Slack is someone takes longer than expected on a task.
+* Measurement: 
+Success will be measured by:
+- Tracking the frequency of updates made by each team member on the Kanban board.
+- Monitoring the movement of tasks from "To Do" to "In Progress" and "Done" to ensure steady progress.
+- Making sure everyone is able to speak up in class or on Slack if they are having any trouble.
+- Agreeing on the UI design before implementing it to avoid confusion during PR reviews.
 
 
 ## Retro Assessment 
 
-* We used the Start, Stop, Continue retro format. We had the team type up what they thought we should start, stop, continue in the team Slack and submit at the same time. Then we had people share what they wrote and elaborate further, and then came up with a goal based on what people said we should start doing the most.
-* I think the retro went well. We seemed to all think that the communication on Slack was good and everyone was able to elaborate on what was going well and what we needed to work on.
-* I think the next person can try a different retro format to see if that brings out more ideas or makes it easier for people to speak up. They can also try starting the retro at the start of class and concluding it at the end so people have more time to think.
+* We used the Start, Stop, Continue retro format. We had the team type up what they thought we should start, stop, continue in the team Slack and submit at the same time. Then we identified the common points and asked people to elaborate.
+* I think this retro helped us identify key areas for improvement, particularly in communication, task management, and UI design for final product. We recognized that while progress is being made, there is room to streamline our workflow and ensure everyone stays aligned.
+* This time, people were more comfortable with this retro format and were able to speak up and share their thoughts. As we approach the final line, we hope to maintain our good communication and work together to finish the project.
 
 ## Experiment/Change
 
-* Our experiment was for everyone to keep the team updated on what was being worked on using the Kanban board to make more progress towards a more functional and complete app. I think we made good progress initially upon declaring the experiment and updating the Kanban board to have more issues and have issues for more people. But after we finished those issues, we did not immediately follow up with new ones so the experiment did not work as well as we had hoped it would.
-* However, we did make more progress between the time of starting the experiment and the time of this assessment, so I believe that updating the issues on the Kanban board at the start did help realign everyone's goals and what issues needed to be tackled. We also kept each other up to date on Slack on what was being worked on regularly and if tasks took longer than expected. People also did start another task after finishing the one they were currently working on, but it was not always reflected on the Kanban board.
-* Overall, I think the experiment did have a positive effect and we made more progress due to it, even if the Kanban board part of the experiment was not perfectly executed. Going forward, we will strive to keep the Kanban board updated along with continuing our regular updates and progress towards our complete app.
+* 
+
+
+
+
+
+
+
+notes:
+1. UI: everyone on the same page of what the UI should look like, implement new stuff (messages, DM, etc) Use Figma so we're not disagreeing after PRs
+2. PR communication: doing pretty good, could check in more often 
+3. Kanban board: figure out what we stil wanna add, assign everyone to have something to do 
+add tasks that are not necessary coding, expand the board so we know everyone's tasks 
+4. Code finalization and presentation: simple presentation, make slides beforehand

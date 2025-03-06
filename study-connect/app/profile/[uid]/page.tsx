@@ -198,10 +198,11 @@ export default function UserProfile() {
 
     return (
         <Suspense fallback={<div className="h-screen flex justify-center items-center">Loading...</div>}>
-            <div className="mb-4 mt-4 flex justify-end px-8">
-                {renderFriendButton()}
-            </div>
-            <ProfileContent user={user} setUser={setUser} />
+            <ProfileContent 
+                user={user} 
+                setUser={setUser} 
+                friendButton={renderFriendButton()}
+            />
         </Suspense>
     );
 }
