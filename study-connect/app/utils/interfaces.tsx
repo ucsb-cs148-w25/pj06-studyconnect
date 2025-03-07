@@ -8,6 +8,8 @@ export interface User {
     joinedClasses: JoinedClass[];
     profilePic: string;
     aboutMe: string;
+    friends: string[]; 
+    friendRequests: FriendRequest[]; 
 }
 
 export interface Class {
@@ -69,4 +71,13 @@ export type Message = {
   timestamp: any
   courseId: string
   courseQuarter: string
+}
+
+export interface FriendRequest {
+    requestId: string;
+    fromUserId: string;
+    fromUserName: string;
+    fromUserProfilePic: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    timestamp: number;
 }

@@ -6,7 +6,14 @@ import { useRef, useState } from "react";
 import { auth } from '../../lib/firebase';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-export default function ProfileContent({ user, setUser }: { user: User, setUser: (user: User) => void }) {
+// Update the props interface to include friendButton
+interface ProfileContentProps {
+  user: User;
+  setUser: (user: User) => void;
+  friendButton?: React.ReactNode;
+}
+
+export default function ProfileContent({ user, setUser, friendButton }: ProfileContentProps) {
   const db = getFirestore();
 
   const router = useRouter();
@@ -168,12 +175,16 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
             <div className="w-2/3 flex flex-col justify-center px-6">
               <div className="flex justify-between w-full">
                 <h2 className="text-gray-600 text-xl font-bold">{user.name}</h2>
-                {/* Show EDIT BUTTON only if the current user matches the profile page */}
-                {isOwnProfile && (
-                  <Link href="/profile/edit" className="text-xs text-amber-500 bg-blue-950 border border-black-500 rounded px-4 py-2">
-                    Edit Profile
-                  </Link>
-                )}
+                <div className="flex items-center gap-2">
+                  {/* Show EDIT BUTTON only if the current user matches the profile page */}
+                  {isOwnProfile && (
+                    <Link href="/profile/edit" className="text-xs text-amber-500 bg-blue-950 border border-black-500 rounded px-4 py-2">
+                      Edit Profile
+                    </Link>
+                  )}
+                  {/* Add the friend button here */}
+                  {friendButton}
+                </div>
               </div>
               <p className="text-gray-600">Email: {user.email}</p>
               <p className="text-gray-600">Grade: {user.grade}</p>
