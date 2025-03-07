@@ -1,57 +1,57 @@
 import { useState, useEffect, useRef } from "react";
 import { Avatar, Button, Input } from '@mui/material';
 import { db, auth } from '@/lib/firebase';
-import { collection, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, orderBy, query, addDoc, collection, onSnapshot, Timestamp } from 'firebase/firestore';
 import type { Message } from '../utils/interfaces';
+import { use } from "chai";
 
-interface Chat {
-    senderUID: string;
-    receiverUID: string;
-    messages: Message;
+function formatTimestamp(timestamp: any): string {
+    if (!timestamp) return '';
+
+    // If it's a Firestore Timestamp, convert to Date
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+
+    return date.toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
 }
 
 export default function DirectMessages({ receiverUID }: { receiverUID: string }) {
     const [messages, setMessages] = useState<Message[]>([]);
-    const [senderUserData, setSenderUserData] = useState<{ name: string; profilePic: string; userId: string }>();
-    const [receiverUserData, setReceiverUserData] = useState<{ name: string; profilePic: string; userId: string }>();
+    const [userData, setUserData] = useState<{ name: string; profilePic: string; userId: string } | null>(null);
+    const [receiverUserData, setReceiverUserData] = useState<{ name: string; profilePic: string; userId: string } | null>(null);
     const [newMessage, setNewMessage] = useState<string>('');
+    const [directMessagesId, setDirectMessagesId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     // Fetch sender and receiver user data
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 try {
-                    const senderUserDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (senderUserDoc.exists()) {
-                        const data = senderUserDoc.data();
-                        setSenderUserData({
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        setUserData({
                             name: data.name,
                             userId: user.uid,
                             profilePic: data.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
                         });
 
-                        const receiverUserDoc = await getDoc(doc(db, 'users', receiverUID));
-                        if (receiverUserDoc.exists()) {
-                            const receiverData = receiverUserDoc.data();
+                        const receiverDoc = await getDoc(doc(db, 'users', receiverUID));
+                        if (receiverDoc.exists()) {
+                            const receiverData = receiverDoc.data();
                             setReceiverUserData({
                                 name: receiverData.name,
                                 userId: receiverUID,
                                 profilePic: receiverData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
                             });
                         }
-
-                        // Fetch messages between sender and receiver
-                        const chatDocRef = doc(db, 'directMessages', `${user.uid}_${receiverUID}`);
-                        const unsubscribeMessages = onSnapshot(chatDocRef, (doc) => {
-                            if (doc.exists()) {
-                                const chatData = doc.data();
-                                console.log("Chat data:", chatData);
-                                setMessages(chatData.messages);
-                            }
-                        });
-
-                        return () => unsubscribeMessages();
                     }
                 } catch (error) {
                     console.error("Error getting user data:", error);
@@ -59,75 +59,114 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             }
         });
         return () => unsubscribe();
-    }, [receiverUID]);
+    }, []);
 
-    const handleSendMessage = async () => {
-        if (newMessage.trim() === '' || !senderUserData || !receiverUserData) return;
+    useEffect(() => {
+        // Check both possible document IDs
+        if (!userData || !receiverUID) return;
+        const chatDocRef1 = collection(db, 'directMessages', `${userData.userId}_${receiverUID}`, "messages");
+        const chatDocRef2 = collection(db, 'directMessages', `${receiverUID}_${userData.userId}`, "messages");
+
+        let chatDocRef = chatDocRef1;
+        if (chatDocRef1) {
+            chatDocRef = chatDocRef1;
+            setDirectMessagesId(`${userData.userId}_${receiverUID}`);
+        } else if (chatDocRef2) {
+            chatDocRef = chatDocRef2;
+            setDirectMessagesId(`${receiverUID}_${userData.userId}`);
+        } else {
+            // default to one of them if both don't exist
+            chatDocRef = chatDocRef1;
+            setDirectMessagesId(`${userData.userId}_${receiverUID}`);
+        }
+
+        const q = query(
+            chatDocRef,
+            orderBy('timestamp', 'asc')
+        )
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const messageList = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as Message[]
+            setMessages(messageList);
+        });
+
+        return () => unsubscribe();
+    }, [receiverUID, userData]);
+
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newMessage.trim() === '' || !userData || !receiverUserData) return;
 
         const newMessageData = {
-            senderUID: senderUserData.userId,
-            receiverUID: receiverUserData.userId,
-            message: newMessage,
-            timestamp: Timestamp.now() // Use Timestamp.now() instead of serverTimestamp()
+            user: {
+                name: userData.name,
+                userId: userData.userId,
+                avatar: userData.profilePic
+            },
+            content: newMessage,
+            timestamp: Timestamp.now()
         };
 
         try {
-            const chatDocRef = doc(db, 'directMessages', `${senderUserData.userId}_${receiverUserData.userId}`);
-            const chatDoc = await getDoc(chatDocRef);
-
-            if (chatDoc.exists()) {
-                // Update existing chat document
-                await updateDoc(chatDocRef, {
-                    messages: [...chatDoc.data().messages, newMessageData]
-                });
+            const chatDocRef1 = collection(db, 'directMessages', `${userData.userId}_${receiverUserData.userId}`, "messages");
+            const chatDocRef2 = collection(db, 'directMessages', `${receiverUserData.userId}_${userData.userId}`, "messages");
+            
+            const chatDoc1 = await getDoc(doc(chatDocRef1));
+            const chatDoc2 = await getDoc(doc(chatDocRef2));
+        
+            let chatDocRef;
+            if (chatDoc1.exists()) {
+                chatDocRef = chatDocRef1;
+                addDoc(chatDocRef1, newMessageData);
+            } else if (chatDoc2.exists()) {
+                chatDocRef = chatDocRef2;
+                addDoc(chatDocRef2, newMessageData);
             } else {
-                // Create new chat document
-                await setDoc(chatDocRef, {
-                    senderUID: senderUserData.userId,
-                    receiverUID: receiverUserData.userId,
-                    messages: [newMessageData]
-                });
+                setDoc(doc(chatDocRef1), newMessageData);
             }
-
-            setNewMessage('');
-            setMessages([...chatDoc.data()?.messages, newMessageData])
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            setNewMessage("");
+            scrollToBottom();
         } catch (error) {
             console.error("Error sending message:", error);
         }
     };
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex items-center p-4 border-b">
-                {receiverUserData && (
-                    <>
-                        <Avatar src={receiverUserData.profilePic} alt={receiverUserData.name} />
-                        <h2 className="ml-4 text-xl font-semibold">{receiverUserData.name}</h2>
-                    </>
-                )}
-            </div>
+        <div className="flex flex-col h-[550px] max-w-md mx-auto border rounded-lg overflow-hidden">
             <div className="flex-grow p-4 overflow-y-auto">
-                {messages.map((message, index) => (
-                    <div key={index} className={`flex ${message.id === senderUserData?.userId ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`p-2 rounded-lg ${message.id === senderUserData?.userId ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}>
-                            {message.content}
-                        </div>
+                {messages.map((message) => (
+                <div key={message.id} className="flex items-start space-x-4 mb-4">
+                    <Avatar src={message.user.avatar} alt={message.user.name}>
+                    {message.user.name.charAt(0)}
+                    </Avatar>
+                    <div className="flex-1 space-y-1">
+                    <div className="flex items-center">
+                        <a href={`/profile/${message.user.userId}`} className="font-semibold text-gray-600 hover:underline">{message.user.name}</a> 
+                        <span className="text-xs text-gray-600 text-muted-foreground ml-2">
+                        {formatTimestamp(message.timestamp)}
+                        </span>
                     </div>
+                    <p className="text-sm text-gray-600">{message.content}</p>
+                    </div>
+                </div>
                 ))}
                 <div ref={messagesEndRef} />
             </div>
-            <div className="p-4 border-t">
+            <form onSubmit={handleSendMessage} className="p-4 border-t">
+                <div className="flex space-x-2">
                 <Input
+                    type="text"
+                    placeholder="Type your message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message"
-                    fullWidth
+                    className="flex-grow"
                 />
-                <Button onClick={handleSendMessage} variant="contained" color="primary" className="mt-2">
-                    Send
-                </Button>
-            </div>
+                <Button type="submit">Send</Button>
+                </div>
+            </form>
         </div>
     );
 }

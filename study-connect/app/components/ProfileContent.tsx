@@ -196,7 +196,7 @@ export default function ProfileContent({ user, setUser, friendButton }: ProfileC
 
 
         <div className="bg-white shadow-md rounded-2xl p-6 mb-6">
-          <div className="break-words">
+          <div className="break-words text-gray-600">
               <span className="font-semibold">About me: </span>{user.aboutMe}
           </div>
       </div>

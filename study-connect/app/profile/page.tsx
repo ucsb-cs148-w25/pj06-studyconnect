@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { User } from '../utils/interfaces';
 import Image from 'next/image';
 import Link from 'next/link';
+import DirectMessages from "../components/DirectMessages";
 
 const ProfileContent = dynamic(() => import('../components/ProfileContent'), {
   ssr: false,
@@ -122,23 +123,29 @@ export default function Profile() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {friendsList.map(friend => (
-                    <Link 
-                        href={`/profile/${friend.userId}`} 
+                    <div 
+                        className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
                         key={friend.userId}
-                        className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
                     >
-                        <Image 
-                            src={friend.profilePic} 
-                            alt={friend.name}
-                            width={50}
-                            height={50}
-                            className="rounded-full mr-4"
-                        />
-                        <div>
-                            <h3 className="font-medium text-gray-900">{friend.name}</h3>
-                            <p className="text-sm text-gray-500">{friend.major}</p>
-                        </div>
-                    </Link>
+                        <Link 
+                            href={`/profile/${friend.userId}`} 
+                            key={friend.userId}
+                            className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                        >
+                            <Image 
+                                src={friend.profilePic} 
+                                alt={friend.name}
+                                width={50}
+                                height={50}
+                                className="rounded-full mr-4"
+                            />
+                            <div>
+                                <h3 className="font-medium text-gray-900">{friend.name}</h3>
+                                <p className="text-sm text-gray-500">{friend.major}</p>
+                            </div>
+                        </Link>
+                        <DirectMessages receiverUID={friend.userId}/>
+                    </div>
                 ))}
             </div>
         );

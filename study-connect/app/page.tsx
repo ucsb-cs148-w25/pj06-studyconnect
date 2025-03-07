@@ -7,7 +7,6 @@ import ClassMembers from './components/ClassMembers';
 import { db } from '../lib/firebase-admin';
 import { set } from 'cypress/types/lodash';
 import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import DirectMessages from './components/DirectMessages';
 
 
 export default function Home() {
@@ -65,7 +64,6 @@ export default function Home() {
                 <h2 className="text-xl font-semibold mb-4">Track Progress</h2>
                 <p className="text-gray-600">Monitor your study sessions and academic improvement.</p>
               </div>
-              <DirectMessages receiverUID='ELJrI34xnxR1dVPnya6976FMvkn1'/>
             </div>
           </div>
         )}
