@@ -44,6 +44,8 @@ Added support for uploading custom profile picture by integrating with Cloudinar
 
 Filled out README documentation
 
+Bugfix for edit profile page
+
 ### Zhenyu
 Added profile page and default profile pictures  
 
