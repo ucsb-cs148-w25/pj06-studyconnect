@@ -8,16 +8,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { User } from '../utils/interfaces';
 import Image from 'next/image';
 import Link from 'next/link';
-/*
-const ProfileContent = dynamic(() => import('../components/ProfileContent'), {
-    ssr: false,
-    loading: () => (
-        <div className="h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-        </div>
-      )
-  });
-  */
   
   export default function Friends() {
       const [user, setUser] = useState<User | null>(null);
@@ -145,7 +135,7 @@ const ProfileContent = dynamic(() => import('../components/ProfileContent'), {
                       </Link>
                   ))}
                 </div>
-                <div className="w-3/5 p-4 border-r overflow-y-auto h-full tect-gray-600">
+                <div className="w-3/5 p-4 border-r overflow-y-auto h-full text-gray-600">
                   WebChat Goes Here, Placeholder Message
                 </div>
                 </div>
