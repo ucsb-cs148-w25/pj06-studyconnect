@@ -45,4 +45,14 @@ Added support for uploading custom profile picture by integrating with Cloudinar
 Filled out README documentation
 
 ### Zhenyu
-...
+Added profile page and default profile pictures  
+
+Added way to access UCSB API for courses for each quarter  
+
+Added members list and class info to class forums  
+
+Various bug fixes including storing courses in backend with quarter and courseid for uniqueness  
+
+Various UI fixes throughout PRs from feedback including major/minor dropdown, highlighting courses green in courses search, separating courses by quarter  
+
+Wrote README
