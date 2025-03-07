@@ -57,3 +57,16 @@ export type Professor = {
   wouldTakeAgainPercent: number;
   commentsSummarizedByGPT: string;
 };
+
+export type Message = {
+  id: string
+  user: {
+    name: string
+    userId: string
+    avatar: string
+  }
+  content: string
+  timestamp: any
+  courseId: string
+  courseQuarter: string
+}

@@ -4,20 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { Avatar, Button, Input } from '@mui/material'
 import { db, auth } from '@/lib/firebase'
 import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, serverTimestamp } from 'firebase/firestore'
-import type { JoinedClass } from '../utils/interfaces'
+import type { JoinedClass, Message } from '../utils/interfaces'
 
-type Message = {
-  id: string
-  user: {
-    name: string
-    userId: string
-    avatar: string
-  }
-  content: string
-  timestamp: any
-  courseId: string
-  courseQuarter: string
-}
 //placeholder messages just for the sake of showing the UI, these will be deleted
 const initialMessages: Message[] = [
   {

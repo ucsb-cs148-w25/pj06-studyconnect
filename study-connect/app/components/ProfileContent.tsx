@@ -136,7 +136,7 @@ export default function ProfileContent({ user, setUser }: { user: User, setUser:
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center bg-gray-100">
       <div className="rounded-2xl p-6 w-3/5 max-w-2xl">
         
         {/* Profile Section (Box 1) */}
