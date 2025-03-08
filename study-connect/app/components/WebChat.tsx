@@ -154,7 +154,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
       <div className="flex-grow p-4 overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id} className="flex items-start space-x-4 mb-4">
-            <Avatar src={message.user.avatar} alt={message.user.name}>
+            <Avatar sx={{position:'static'}} src={message.user.avatar} alt={message.user.name}>
               {message.user.name.charAt(0)}
             </Avatar>
             <div className="flex-1 space-y-1">
