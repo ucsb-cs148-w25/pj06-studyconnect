@@ -1,7 +1,16 @@
 ## PJ06 StudyConnect Contributions
 
 ### Allen
-...
+
+Pair-programmed with Anthony on create-profile page.
+
+Set up Firestore database.
+
+Scraped, cleaned, sorted RateMyProfessor data and add them to the DB.
+
+Displayed RateMyProfessor data in the course info page. 
+
+Created personal profile page such that users can see each other's profile from posts, class members, and class chats. 
 
 ### Anthony
 
