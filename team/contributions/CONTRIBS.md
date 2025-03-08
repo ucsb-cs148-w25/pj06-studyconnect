@@ -25,7 +25,12 @@ Focused on UI updates to application
 Helped write up Design Document (Design Process and User Experience Sections)
 
 ### Hannah
-...
+Fixed production bugs and set up environment variables in group code
+
+Deploy and maintain deployment
+
+Add ability to post images in forum posts
+
 
 ### Maria
 
