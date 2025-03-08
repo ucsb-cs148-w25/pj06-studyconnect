@@ -178,7 +178,7 @@ export const Navbar = () => {
     const pendingRequests = getPendingFriendRequests();
 
     return (
-        <nav className="bg-white text-black p-4 sm:p-6">
+        <nav className="sticky top-0 bg-white text-black p-4 sm:p-6">
             <div className="container mx-auto flex justify-between items-center">
                 <Link href="/" className="text-3xl font-bold">
                     study-connect
@@ -191,6 +191,9 @@ export const Navbar = () => {
                             </Link>
                             <Link href="/profile" className="hover:text-blue-300 text-2xl"> 
                                 profile
+                            </Link>
+                            <Link href="/friends" className="hover:text-blue-300 text-2xl"> 
+                                friends
                             </Link>
                             
                             {/* Notification Bell */}
