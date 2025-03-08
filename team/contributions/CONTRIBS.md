@@ -33,7 +33,15 @@ Created and maintained User Manual
 Wrote some user stories on Kanban board and made sure they had acceptance criteria in the description
 
 ### Shelly
-...
+Implemented the initial Firebase authentication flow (login/signup) with UCSB email accounts
+
+Added forum for each class where users can interact with each other
+
+Added post/comment/like functionality in the class forum and created pages routed by posts
+
+Added real-time group chat functionality for each class
+
+Added friend system where users can send friends requests and add each other as "friends"
 
 ### Wesley
 Developed initial Explore Classes page to allow users to add classes
