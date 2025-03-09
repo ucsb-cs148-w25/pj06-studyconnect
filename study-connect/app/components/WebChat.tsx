@@ -18,33 +18,6 @@ type Message = {
   courseId: string
   courseQuarter: string
 }
-//placeholder messages just for the sake of showing the UI, these will be deleted
-const initialMessages: Message[] = [
-  {
-    id: "1",
-    user: { name: "Alice", userId: "testId1", avatar: "/placeholder.svg?height=40&width=40" },
-    content: "Hey everyone! How's it going?",
-    timestamp: "2:30 PM",
-    courseId: "class1",
-    courseQuarter: "Q1"
-  },
-  {
-    id: "2",
-    user: { name: "Bob", userId: "testId2", avatar: "/placeholder.svg?height=40&width=40" },
-    content: "Hi Alice! All good here. How about you?",
-    timestamp: "2:32 PM",
-    courseId: "class1",
-    courseQuarter: "Q1"
-  },
-  {
-    id: "3",
-    user: { name: "Charlie", userId: "testId3", avatar: "/placeholder.svg?height=40&width=40" },
-    content: "Hello folks! Just joined the chat.",
-    timestamp: "2:35 PM",
-    courseId: "class1",
-    courseQuarter: "Q1"
-  },
-]
 
 interface WebChatProps {
   selectedClass: JoinedClass;  // Change to accept full class info
@@ -181,7 +154,7 @@ export default function WebChat({ selectedClass }: WebChatProps) {
       <div className="flex-grow p-4 overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id} className="flex items-start space-x-4 mb-4">
-            <Avatar src={message.user.avatar} alt={message.user.name}>
+            <Avatar sx={{position:'static'}} src={message.user.avatar} alt={message.user.name}>
               {message.user.name.charAt(0)}
             </Avatar>
             <div className="flex-1 space-y-1">
