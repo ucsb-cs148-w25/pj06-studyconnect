@@ -25,7 +25,8 @@ export default function ProfileEdit() {
         minor: '',
         joinedClasses: [],
         profilePic: '',
-        aboutMe: ''
+        aboutMe: '',
+        friends: []
     });
 
     const [loading, setLoading] = useState(true);
@@ -48,7 +49,8 @@ export default function ProfileEdit() {
                         minor: userData.minor || '',
                         joinedClasses: userData.joinedClasses || [],
                         profilePic: userData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
-                        aboutMe: userData.aboutMe || ''
+                        aboutMe: userData.aboutMe || '',
+                        friends: userData.friends || []
                     });
                     setCharCount(userData.aboutMe ? userData.aboutMe.length : 0);
                 } else {
@@ -84,7 +86,8 @@ export default function ProfileEdit() {
                 minor: formData.minor,
                 joinedClasses: formData.joinedClasses.length ? formData.joinedClasses : [],
                 profilePic: formData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
-                aboutMe: formData.aboutMe
+                aboutMe: formData.aboutMe,
+                friends: formData.friends.length ? formData.friends : []
             });
         }
         router.push('/profile');
