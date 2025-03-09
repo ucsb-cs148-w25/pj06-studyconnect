@@ -112,7 +112,7 @@ import Link from 'next/link';
           }
   
           return (
-            <div className="flex-1 p-8">
+            <div className="flex-1 p-8 bg-gray-50">
                 <div className="flex h-screen">
                 <div className="w-2/5 p-4 border-r overflow-y-auto h-full">
                   {friendsList.map(friend => (
