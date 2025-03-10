@@ -73,7 +73,8 @@ Create a .env.local file in the /study-connect folder with the following environ
 
 You can get the Firebase keys by making a Firebase account and creating a new project here: [Firebase](https://firebase.google.com/)  
 You can get a UCSB API key by filling out a request form here: [UCSB API request form](https://developer.ucsb.edu/docs/applications/application-approval-request)  
-You can get a cloudinary key by making a free Cloudinary account here [Cloudinary](https://cloudinary.com/)
+You can get a cloudinary key by making a free Cloudinary account here [Cloudinary](https://cloudinary.com/) 
+
 Visit site at [localhost:3000](http://localhost:3000/)
 
 # Functionality
