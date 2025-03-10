@@ -526,7 +526,7 @@ export default function ExploreCourses() {
       </div>
 
       {/* right panel */}
-      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto sticky top-0 h-1">
+      <div className="flex flex-col flex-1 p-8 space-y-8 bg-white rounded-lg shadow-md m-4 min-h-screen overflow-y-auto h-1">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Class Info</h1>
           <p className="mt-2 text-gray-600">Basic class information</p>
