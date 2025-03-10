@@ -34,7 +34,7 @@ In the front page of the website, each user is prompted with a Firebase or Googl
   - Permissions: View & browse classes, post messages and discussions
 - Instructor:
   - Goal: To facilitate discussion about classes and help students study
-  - Permissions: Pin discussion posts to channel, remove irrelevant content from chats
+  - Permissions: Same as students
  - Administrator:
    - Goal: To ensure class chats are not being misused (remove spam bots, etc)
    - Permissions: Remove users from channel, remove irrelevant content
@@ -65,20 +65,26 @@ Create a .env.local file in the /study-connect folder with the following environ
 - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="<your_key>"
 - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="<your_key>"
 - NEXT_PUBLIC_FIREBASE_APP_ID="<your_key>"
+- NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="<your_key>"
 - UCSB_API_KEY="<your_key>"
+- FIREBASE_CLIENT_EMAIL="<your_key>"
+- FIREBASE_PRIVATE_KEY="<your_key>"
+- CLOUDINARY_URL="<your_key>"
 
 You can get the Firebase keys by making a Firebase account and creating a new project here: [Firebase](https://firebase.google.com/)  
 You can get a UCSB API key by filling out a request form here: [UCSB API request form](https://developer.ucsb.edu/docs/applications/application-approval-request)  
+You can get a cloudinary key by making a free Cloudinary account here [Cloudinary](https://cloudinary.com/)
 Visit site at [localhost:3000](http://localhost:3000/)
 
 # Functionality
-1. Login using your @ucsb.edu email and fill out your profile page.
+1. Login using your @ucsb.edu email and fill out your profile page. View and customize at any time. 
 2. View courses in the courses page found on the right side of the header
 3. Search courses by subject code or course name
+4. Join a course and start chatting
 
 # Known Problems
-1. Private DMs not Implemented
-2. UI/UX Improvements
+1. Profile picture clips
+2. Posts cannot be deleted except by admins
 
 # Contributing
 1. Fork it!
