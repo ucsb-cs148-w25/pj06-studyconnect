@@ -3,7 +3,6 @@ import { Avatar, Button, Input } from '@mui/material';
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, setDoc, orderBy, query, addDoc, collection, onSnapshot, Timestamp } from 'firebase/firestore';
 import type { Message } from '../utils/interfaces';
-import { use } from "chai";
 
 function formatTimestamp(timestamp: any): string {
     if (!timestamp) return '';
@@ -23,11 +22,25 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
     const [receiverUserData, setReceiverUserData] = useState<{ name: string; profilePic: string; userId: string } | null>(null);
     const [newMessage, setNewMessage] = useState<string>('');
     const [directMessagesId, setDirectMessagesId] = useState<string | null>(null);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
+        // More robust scrolling that works even if the ref isn't visible
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+        
+        // Backup method using scrollIntoView
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
+
+    // Auto-scroll to bottom when messages change
+    useEffect(() => {
+        if (messages.length > 0) {
+            scrollToBottom();
+        }
+    }, [messages]);
 
     // Fetch sender and receiver user data
     useEffect(() => {
@@ -59,7 +72,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             }
         });
         return () => unsubscribe();
-    }, []);
+    }, [receiverUID]);
 
     useEffect(() => {
         // Check both possible document IDs
@@ -91,6 +104,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
                 ...doc.data()
             })) as Message[]
             setMessages(messageList);
+            scrollToBottom();
         });
 
         return () => unsubscribe();
@@ -120,27 +134,29 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             let chatDocRef;
             if (chatDoc1.exists()) {
                 chatDocRef = chatDocRef1;
-                addDoc(chatDocRef1, newMessageData);
+                await addDoc(chatDocRef1, newMessageData);
             } else if (chatDoc2.exists()) {
                 chatDocRef = chatDocRef2;
-                addDoc(chatDocRef2, newMessageData);
+                await addDoc(chatDocRef2, newMessageData);
             } else {
-                setDoc(doc(chatDocRef1), newMessageData);
+                await setDoc(doc(chatDocRef1), newMessageData);
             }
             setNewMessage("");
-            scrollToBottom();
         } catch (error) {
             console.error("Error sending message:", error);
         }
     };
 
     return (
-        <div className="flex flex-col h-[550px] max-w-md mx-auto border rounded-lg overflow-hidden">
-            <div className="flex-grow p-4 overflow-y-auto">
+        <div className="flex flex-col h-full mx-auto overflow-hidden">
+            <div 
+                className="flex-grow p-4 overflow-y-auto"
+                ref={messagesContainerRef}
+            >
                 {messages.map((message) => (
                 <div key={message.id} className="flex items-start space-x-4 mb-4">
-                    <Avatar src={message.user.avatar} alt={message.user.name}>
-                    {message.user.name.charAt(0)}
+                    <Avatar src={message.user.avatar} alt={message.user.name} sx={{position:'static'}}>
+                        {message.user.name.charAt(0)}
                     </Avatar>
                     <div className="flex-1 space-y-1">
                     <div className="flex items-center">
@@ -153,7 +169,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
                     </div>
                 </div>
                 ))}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} style={{ height: "1px", width: "100%" }} />
             </div>
             <form onSubmit={handleSendMessage} className="p-4 border-t">
                 <div className="flex space-x-2">

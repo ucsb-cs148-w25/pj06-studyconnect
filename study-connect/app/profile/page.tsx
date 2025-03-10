@@ -5,9 +5,6 @@ import dynamic from "next/dynamic";
 import { auth, db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { User } from '../utils/interfaces';
-import Image from 'next/image';
-import Link from 'next/link';
-import DirectMessages from "../components/DirectMessages";
 
 const ProfileContent = dynamic(() => import('../components/ProfileContent'), {
   ssr: false,
