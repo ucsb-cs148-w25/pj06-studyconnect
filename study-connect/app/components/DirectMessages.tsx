@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Avatar, Button, Input } from '@mui/material';
 import { db, auth } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, collection, onSnapshot, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, onSnapshot, Timestamp } from 'firebase/firestore';
 import type { Message } from '../utils/interfaces';
 
 function formatTimestamp(timestamp: any): string {
@@ -25,15 +25,14 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ 
-            behavior: "smooth",
-            block: "end" 
+            behavior: "smooth"
         });
     };
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
         if (messages.length > 0) {
-            setTimeout(scrollToBottom, 100);
+            setTimeout(scrollToBottom, 300);
         }
     }, [messages]);
 
@@ -72,6 +71,8 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
     // Set up message listener when user data is loaded
     useEffect(() => {
         if (!userData || !receiverUID) return;
+        
+        let unsubscribeMessages: () => void = () => {};
 
         const getOrCreateChatDoc = async () => {
             // Check both possible document IDs
@@ -100,7 +101,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         };
 
         getOrCreateChatDoc().then(chatId => {
-            const unsubscribe = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
+            unsubscribeMessages = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
                     setMessages(data.messages || []);
@@ -108,9 +109,11 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
                     setMessages([]);
                 }
             });
-
-            return () => unsubscribe();
         });
+
+        return () => {
+            unsubscribeMessages();
+        };
     }, [userData, receiverUID]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
@@ -144,7 +147,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             }
             
             setNewMessage("");
-            setTimeout(scrollToBottom, 300);
+            scrollToBottom();
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -156,34 +159,38 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
                 className="flex-grow p-4 overflow-y-auto"
                 ref={messagesContainerRef}
             >
-                {messages.map((message) => (
+                {messages.length > 0 ? (messages.map((message) => (
                 <div key={message.id} className="flex items-start space-x-4 mb-4">
                     <Avatar src={message.user.avatar} alt={message.user.name} sx={{position:'static'}}>
                         {message.user.name.charAt(0)}
                     </Avatar>
                     <div className="flex-1 space-y-1">
-                    <div className="flex items-center">
-                        <a href={`/profile/${message.user.userId}`} className="font-semibold text-gray-600 hover:underline">{message.user.name}</a> 
-                        <span className="text-xs text-gray-600 text-muted-foreground ml-2">
-                        {formatTimestamp(message.timestamp)}
-                        </span>
-                    </div>
-                    <p className="text-sm text-gray-600">{message.content}</p>
+                        <div className="flex items-center">
+                            <a href={`/profile/${message.user.userId}`} className="font-semibold text-gray-600 hover:underline">{message.user.name}</a> 
+                            <span className="text-xs text-gray-600 text-muted-foreground ml-2">
+                                {formatTimestamp(message.timestamp)}
+                            </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{message.content}</p>
                     </div>
                 </div>
-                ))}
+                ))) : (
+                    <div className="h-full flex items-center justify-center">
+                        <p className="text-gray-500">No messages yet. Start a conversation!</p>
+                    </div>
+                )}
                 <div ref={messagesEndRef} style={{ height: "1px", width: "100%" }} />
             </div>
             <form onSubmit={handleSendMessage} className="p-4 border-t">
                 <div className="flex space-x-2">
-                <Input
-                    type="text"
-                    placeholder="Type your message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    className="flex-grow"
-                />
-                <Button type="submit">Send</Button>
+                    <Input
+                        type="text"
+                        placeholder="Type your message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        className="flex-grow"
+                    />
+                    <Button type="submit">Send</Button>
                 </div>
             </form>
         </div>
