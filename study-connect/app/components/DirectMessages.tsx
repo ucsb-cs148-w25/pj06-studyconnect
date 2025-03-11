@@ -114,7 +114,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => {
             unsubscribeMessages();
         };
-    }, [userData, receiverUID]);
+    }, [receiverUID]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
