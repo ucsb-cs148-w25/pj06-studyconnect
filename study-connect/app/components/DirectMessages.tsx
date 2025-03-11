@@ -1,15 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Avatar, Button, Input } from '@mui/material';
 import { db, auth } from '@/lib/firebase';
-import { doc, getDoc, setDoc, orderBy, query, addDoc, collection, onSnapshot, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, onSnapshot, Timestamp } from 'firebase/firestore';
 import type { Message } from '../utils/interfaces';
 
 function formatTimestamp(timestamp: any): string {
     if (!timestamp) return '';
-
     // If it's a Firestore Timestamp, convert to Date
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-
     return date.toLocaleTimeString([], { 
         hour: '2-digit', 
         minute: '2-digit'
@@ -21,24 +19,21 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
     const [userData, setUserData] = useState<{ name: string; profilePic: string; userId: string } | null>(null);
     const [receiverUserData, setReceiverUserData] = useState<{ name: string; profilePic: string; userId: string } | null>(null);
     const [newMessage, setNewMessage] = useState<string>('');
-    const [directMessagesId, setDirectMessagesId] = useState<string | null>(null);
+    const [chatDocId, setChatDocId] = useState<string | null>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
-        // More robust scrolling that works even if the ref isn't visible
-        if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-        }
-        
-        // Backup method using scrollIntoView
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ 
+            behavior: "smooth",
+            block: "end" 
+        });
     };
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
         if (messages.length > 0) {
-            scrollToBottom();
+            setTimeout(scrollToBottom, 100);
         }
     }, [messages]);
 
@@ -74,47 +69,56 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => unsubscribe();
     }, [receiverUID]);
 
+    // Set up message listener when user data is loaded
     useEffect(() => {
-        // Check both possible document IDs
         if (!userData || !receiverUID) return;
-        const chatDocRef1 = collection(db, 'directMessages', `${userData.userId}_${receiverUID}`, "messages");
-        const chatDocRef2 = collection(db, 'directMessages', `${receiverUID}_${userData.userId}`, "messages");
 
-        let chatDocRef = chatDocRef1;
-        if (chatDocRef1) {
-            chatDocRef = chatDocRef1;
-            setDirectMessagesId(`${userData.userId}_${receiverUID}`);
-        } else if (chatDocRef2) {
-            chatDocRef = chatDocRef2;
-            setDirectMessagesId(`${receiverUID}_${userData.userId}`);
-        } else {
-            // default to one of them if both don't exist
-            chatDocRef = chatDocRef1;
-            setDirectMessagesId(`${userData.userId}_${receiverUID}`);
-        }
+        const getOrCreateChatDoc = async () => {
+            // Check both possible document IDs
+            const id1 = `${userData.userId}_${receiverUID}`;
+            const id2 = `${receiverUID}_${userData.userId}`;
+            
+            const doc1 = await getDoc(doc(db, 'directMessages', id1));
+            const doc2 = await getDoc(doc(db, 'directMessages', id2));
+            
+            if (doc1.exists()) {
+                console.log(`Using existing chat document: ${id1}`);
+                setChatDocId(id1);
+                return id1;
+            } else if (doc2.exists()) {
+                console.log(`Using existing chat document: ${id2}`);
+                setChatDocId(id2);
+                return id2;
+            } else {
+                console.log(`Creating new chat document: ${id1}`);
+                await setDoc(doc(db, 'directMessages', id1), {
+                    messages: []
+                });
+                setChatDocId(id1);
+                return id1;
+            }
+        };
 
-        const q = query(
-            chatDocRef,
-            orderBy('timestamp', 'asc')
-        )
+        getOrCreateChatDoc().then(chatId => {
+            const unsubscribe = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const data = docSnapshot.data();
+                    setMessages(data.messages || []);
+                } else {
+                    setMessages([]);
+                }
+            });
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const messageList = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Message[]
-            setMessages(messageList);
-            scrollToBottom();
+            return () => unsubscribe();
         });
-
-        return () => unsubscribe();
-    }, [receiverUID, userData]);
+    }, [userData, receiverUID]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim() === '' || !userData || !receiverUserData) return;
+        if (newMessage.trim() === '' || !userData || !receiverUserData || !chatDocId) return;
 
         const newMessageData = {
+            id: `${Date.now()}_${userData.userId}`,
             user: {
                 name: userData.name,
                 userId: userData.userId,
@@ -125,23 +129,22 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         };
 
         try {
-            const chatDocRef1 = collection(db, 'directMessages', `${userData.userId}_${receiverUserData.userId}`, "messages");
-            const chatDocRef2 = collection(db, 'directMessages', `${receiverUserData.userId}_${userData.userId}`, "messages");
+            const chatDocRef = doc(db, 'directMessages', chatDocId);
+            const chatDoc = await getDoc(chatDocRef);
             
-            const chatDoc1 = await getDoc(doc(chatDocRef1));
-            const chatDoc2 = await getDoc(doc(chatDocRef2));
-        
-            let chatDocRef;
-            if (chatDoc1.exists()) {
-                chatDocRef = chatDocRef1;
-                await addDoc(chatDocRef1, newMessageData);
-            } else if (chatDoc2.exists()) {
-                chatDocRef = chatDocRef2;
-                await addDoc(chatDocRef2, newMessageData);
+            if (chatDoc.exists()) {
+                const currentMessages = chatDoc.data().messages || [];
+                await updateDoc(chatDocRef, {
+                    messages: [...currentMessages, newMessageData]
+                });
             } else {
-                await setDoc(doc(chatDocRef1), newMessageData);
+                await setDoc(chatDocRef, {
+                    messages: [newMessageData]
+                });
             }
+            
             setNewMessage("");
+            setTimeout(scrollToBottom, 300);
         } catch (error) {
             console.error("Error sending message:", error);
         }
