@@ -178,7 +178,7 @@ export const Navbar = () => {
     const pendingRequests = getPendingFriendRequests();
 
     return (
-        <nav className="sticky top-0 bg-white text-black p-4 sm:p-6">
+        <nav className="sticky top-0 bg-white text-black p-4 sm:p-6 z-50">
             <div className="container mx-auto flex justify-between items-center">
                 <Link href="/" className="text-3xl font-bold">
                     study-connect

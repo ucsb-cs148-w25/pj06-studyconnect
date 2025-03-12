@@ -143,26 +143,27 @@ export default function ProfileContent({ user, setUser, friendButton }: ProfileC
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="rounded-2xl p-6 w-3/5 max-w-2xl">
         
         {/* Profile Section (Box 1) */}
-        <div className="bg-white shadow-md rounded-2xl p-6 mb-6">
+        <div className="bg-white shadow-md rounded-2xl p-6 mb-6 overflow-auto">
           <div className="flex w-full p-4 justify-between">
-            {/* Profile Picture */}
+            {/* Profile Picture with edit icon */}
             <div
-              className={`flex justify-center relative group ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              className={`grid ${isOwnProfile ? 'cursor-pointer' : ''}`}
               onClick={isOwnProfile ? () => handleProfilePicClick() : undefined}
             >
               <img
                 src={user.profilePic}
                 alt="Profile"
-                className="w-32 h-32 rounded-full object-cover transition-all duration-300 ease-in-out 
-                  ${isOwnProfile ? 'group-hover:opacity-50' : ''}"
+                className={`w-32 h-32 rounded-full object-cover transition-all duration-300 ease-in-out col-start-1 row-start-1
+                  ${isOwnProfile ? 'group-hover:opacity-50' : ''}`}
               />
-              {/* Pencil Icon centered on hover, only if it's the user's own profile */}
+              
+              {/* Pencil icon - centered in the same grid cell */}
               {isOwnProfile && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                <div className="flex items-center justify-center col-start-1 row-start-1 z-10 opacity-0 hover:opacity-100 transition-opacity duration-300 ease-in-out">
                   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#555555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 20h9"></path>
                     <path d="M16 4l4 4L7 16H3v-4L16 4z"></path>
