@@ -1,9 +1,11 @@
 'use server'
 
-import { db } from '../../lib/firebase-admin';
+import { db, storage } from '../../lib/firebase-admin';
 import { cookies } from 'next/headers';
 import { Timestamp } from 'firebase-admin/firestore';
 import { auth } from 'firebase-admin';
+import { randomUUID } from 'crypto';
+import { v2 as cloudinary } from 'cloudinary';
 
 export async function createPost(formData: FormData) {
   try {
@@ -16,11 +18,12 @@ export async function createPost(formData: FormData) {
 
     try {
       const decodedClaim = await auth().verifySessionCookie(sessionCookie, true);
-      
+
       const title = formData.get('title') as string;
       const content = formData.get('content') as string;
       const classId = formData.get('classId') as string;
       const classQuarter = formData.get('classQuarter') as string;
+      const images = formData.getAll('images') as string[];
 
       console.log('Creating post with data:', { title, content, classId, classQuarter }); // Debug log
 
@@ -41,11 +44,26 @@ export async function createPost(formData: FormData) {
       const postData = {
         title,
         content,
+        imagesRef: [] as string[],
         classId: classId_Quarter,
         authorId: decodedClaim.uid,
         authorName: userData.name || 'Anonymous',
         createdAt: Timestamp.now(),
       };
+
+      cloudinary.config({ 
+        cloud_name: process.env.CLOUDINARY_NAME, 
+        secure: false,
+        api_key: process.env.CLOUDINARY_API_KEY, 
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+
+      for(const image of images) {
+        const imageRef = randomUUID();
+
+        const { secure_url } = await cloudinary.uploader.upload(image, { use_filename: true, public_id: imageRef, folder: "study-connect-posts"});
+        postData.imagesRef.push(secure_url);
+      }
 
       console.log('Saving post data:', postData); // Debug log
 
