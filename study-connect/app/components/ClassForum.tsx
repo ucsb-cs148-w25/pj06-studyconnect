@@ -99,7 +99,21 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
   return (
     <div className="p-6 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-black">Class Forum - {selectedClassId}</h2>
+        <h2 className="text-2xl font-bold text-black">{selectedClassId} - {selectedClassQuarter && QUARTERMAP[selectedClassQuarter[selectedClassQuarter.length - 1] as keyof typeof QUARTERMAP]} {selectedClassQuarter && selectedClassQuarter.substring(0, 4)} Forums</h2>
+        <div className="flex justify-between items-center space-x-4">
+          <button
+            className="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            onClick={handleInfoClick}
+          >
+            Info
+          </button>
+          <button
+            className="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            onClick={handleMembersClick}
+          >
+            Members
+          </button>
+        </div>
         <button
           onClick={onCloseAction}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
