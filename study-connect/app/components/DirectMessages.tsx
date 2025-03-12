@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Avatar, Button, Input } from '@mui/material';
 import { db, auth } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, onSnapshot, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, addDoc, updateDoc, collection, onSnapshot, Timestamp } from 'firebase/firestore';
 import type { Message } from '../utils/interfaces';
 
 function formatTimestamp(timestamp: any): string {
@@ -92,13 +92,12 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
                 await setDoc(doc(db, 'directMessages', id1), {
                     messages: []
                 });
-                setChatDocId(id1);
                 return id1;
             }
         };
 
         getOrCreateChatDoc().then(chatId => {
-            if (chatId === chatDocId) return;
+            if (chatId === chatDocId) return () => unsubscribeMessages();
             unsubscribeMessages = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();setMessages(data.messages || []);
@@ -111,7 +110,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => {
             unsubscribeMessages();
         };
-    }, [userData, receiverUID]);
+    }, [userData, receiverUID, chatDocId]);
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -129,13 +128,11 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         };
 
         try {
-            const chatDocRef = doc(db, 'directMessages', chatDocId);
-            const chatDoc = await getDoc(chatDocRef);
+            const chatDocRef = collection(db, 'directMessages', chatDocId, 'messages');
             
-            if (chatDoc.exists()) {
-                const currentMessages = chatDoc.data().messages || [];
-                await updateDoc(chatDocRef, {
-                    messages: [...currentMessages, newMessageData]
+            if (chatDocRef) {
+                await addDoc(chatDocRef, {
+                    messages: newMessageData
                 });
             } else {
                 await setDoc(chatDocRef, {
