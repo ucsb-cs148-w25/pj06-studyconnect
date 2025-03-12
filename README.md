@@ -96,3 +96,8 @@ Visit site at [localhost:3000](http://localhost:3000/)
 
 # License
 MIT License
+
+# Deployment
+[Deployed on Vercel](https://studyconnect-deploy.vercel.app/)
+
+
