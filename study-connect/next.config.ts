@@ -11,11 +11,6 @@ const nextConfig: NextConfig = {
         'encrypted-tbn0.gstatic.com', 
       ],
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '20mb'
-    }
-  }
 };
 
 export default nextConfig;

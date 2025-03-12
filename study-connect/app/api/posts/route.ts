@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { db } from '../../../lib/firebase-admin';
 
 export async function GET(request: Request) {
-
   try {
     const { searchParams } = new URL(request.url);
     const classId = searchParams.get('classId')?.trim();
@@ -28,12 +27,10 @@ export async function GET(request: Request) {
 
     const posts = postsSnapshot.docs.map(doc => {
       const data = doc.data();
-
       return {
         id: doc.id,
         title: data.title,
         content: data.content,
-        imagesRef: data.imagesRef,
         authorId: data.authorId,
         authorName: data.authorName,
         classId: data.classId_Quarter,
