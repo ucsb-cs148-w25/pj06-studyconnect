@@ -128,11 +128,13 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         };
 
         try {
-            const chatDocRef = collection(db, 'directMessages', chatDocId, 'messages');
+            const chatDocRef = doc(db, 'directMessages', chatDocId);
+            const chatDoc = await getDoc(chatDocRef);
             
-            if (chatDocRef) {
-                await addDoc(chatDocRef, {
-                    messages: newMessageData
+            if (chatDoc.exists()) {
+                const currentMessages = chatDoc.data().messages || [];
+                await updateDoc(chatDocRef, {
+                    messages: [...currentMessages, newMessageData]
                 });
             } else {
                 await setDoc(chatDocRef, {
