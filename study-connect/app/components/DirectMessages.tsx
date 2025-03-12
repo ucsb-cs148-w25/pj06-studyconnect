@@ -36,7 +36,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         }
     }, [messages]);
 
-    // Fetch sender and receiver user data
+    // Separate the auth listener and chat document listener
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -68,7 +68,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => unsubscribe();
     }, [receiverUID]);
 
-    // Set up message listener when user data is loaded
+    // Separate effect for chat document listener
     useEffect(() => {
         if (!userData || !receiverUID) return;
         
@@ -83,15 +83,12 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             const doc2 = await getDoc(doc(db, 'directMessages', id2));
             
             if (doc1.exists()) {
-                console.log(`Using existing chat document: ${id1}`);
                 setChatDocId(id1);
                 return id1;
             } else if (doc2.exists()) {
-                console.log(`Using existing chat document: ${id2}`);
                 setChatDocId(id2);
                 return id2;
             } else {
-                console.log(`Creating new chat document: ${id1}`);
                 await setDoc(doc(db, 'directMessages', id1), {
                     messages: []
                 });
@@ -104,7 +101,11 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             unsubscribeMessages = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
-                    setMessages(data.messages || []);
+                    // Only update if this is the current receiver's messages
+                    if (chatId === `${userData.userId}_${receiverUID}` || 
+                        chatId === `${receiverUID}_${userData.userId}`) {
+                        setMessages(data.messages || []);
+                    }
                 } else {
                     setMessages([]);
                 }
@@ -114,8 +115,8 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => {
             unsubscribeMessages();
         };
-    }, [receiverUID]);
-
+    }, [userData, receiverUID]);
+    
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (newMessage.trim() === '' || !userData || !receiverUserData || !chatDocId) return;
