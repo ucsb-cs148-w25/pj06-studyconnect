@@ -98,14 +98,10 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         };
 
         getOrCreateChatDoc().then(chatId => {
+            if (chatId === chatDocId) return;
             unsubscribeMessages = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
                 if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();
-                    // Only update if this is the current receiver's messages
-                    if (chatId === `${userData.userId}_${receiverUID}` || 
-                        chatId === `${receiverUID}_${userData.userId}`) {
-                        setMessages(data.messages || []);
-                    }
+                    const data = docSnapshot.data();setMessages(data.messages || []);
                 } else {
                     setMessages([]);
                 }
