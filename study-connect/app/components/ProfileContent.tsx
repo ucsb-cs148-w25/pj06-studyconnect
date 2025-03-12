@@ -143,7 +143,9 @@ export default function ProfileContent({ user, setUser, friendButton }: ProfileC
   }
 
   return (
+
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
+
       <div className="rounded-2xl p-6 w-3/5 max-w-2xl">
         
         {/* Profile Section (Box 1) */}
@@ -197,7 +199,7 @@ export default function ProfileContent({ user, setUser, friendButton }: ProfileC
 
 
         <div className="bg-white shadow-md rounded-2xl p-6 mb-6">
-          <div className="break-words">
+          <div className="break-words text-gray-600">
               <span className="font-semibold">About me: </span>{user.aboutMe}
           </div>
       </div>

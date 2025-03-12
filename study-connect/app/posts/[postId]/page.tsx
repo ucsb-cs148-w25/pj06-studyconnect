@@ -31,7 +31,6 @@ interface Post {
   };
   likes: number;
   likedBy: string[];
-  imagesRef: string[];
 }
 
 export default function PostPage({ params }: { params: Promise<{ postId: string }> }) {
@@ -200,15 +199,6 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
               <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
                 {post.content}
               </p>
-              <div>
-                {post.imagesRef.map((imageRef, i) => {
-                  return (
-                    <div id={`post-${post.id}-image-${i}`}>
-                      <img src={imageRef} />
-                    </div>
-                  );
-                })}
-              </div>
             </div>
 
             <div className="mt-6 flex items-center space-x-4">

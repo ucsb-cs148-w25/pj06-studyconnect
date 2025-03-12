@@ -8,11 +8,13 @@ import { doc, getDoc } from 'firebase/firestore';
 import { User } from '../utils/interfaces';
 import Image from 'next/image';
 import Link from 'next/link';
+import DirectMessages from "../components/DirectMessages";
   
   export default function Friends() {
       const [user, setUser] = useState<User | null>(null);
       const [friendsList, setFriendsList] = useState<User[]>([]);
       const [loadingFriends, setLoadingFriends] = useState(false);
+      const [selectedFriend, setSelectedFriend] = useState<User | null>(null);
       const router = useRouter();
   
       useEffect(() => {
@@ -26,8 +28,6 @@ import Link from 'next/link';
               const userDoc = await getDoc(doc(db, 'users', user.uid));
               if (userDoc.exists()) {
                   const userData = userDoc.data();
-                  console.log("userData: ", userData);
-                  console.log("user.uid in profile page: ", user.uid); 
                   setUser({
                       userId: user.uid || '',
                       name: userData.name || '',
@@ -112,34 +112,64 @@ import Link from 'next/link';
           }
   
           return (
-            <div className="flex-1 p-8 bg-gray-50">
-                <div className="flex h-screen">
-                <div className="w-2/5 p-4 border-r overflow-y-auto h-full">
+            <div className="flex-1 bg-gray-50 pt-4">
+              {/* Main container with height calculation to account for navbar */}
+              <div className="flex h-[calc(100vh-80px)] mx-4">
+                {/* Friends list sidebar */}
+                <div className="w-2/5 bg-white rounded-l-lg shadow overflow-y-auto">
                   {friendsList.map(friend => (
-                      <Link 
-                          href={`/profile/${friend.userId}`} 
-                          key={friend.userId}
-                          className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                    <div key={friend.userId}>
+                      <button 
+                        className={`flex items-center p-4 w-full my-2 hover:bg-gray-50 transition-colors ${selectedFriend?.userId === friend.userId ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+                        onClick={() => setSelectedFriend(friend)}
                       >
-                          <Image 
+                        <div className="flex w-full justify-between items-center">
+                          {/* Left side: Profile image, name, and major */}
+                          <div className="flex items-center">
+                            <Image 
                               src={friend.profilePic} 
                               alt={friend.name}
                               width={50}
                               height={50}
                               className="rounded-full mr-4"
-                          />
-                          <div>
-                              <h3 className="font-medium text-gray-900">{friend.name}</h3>
-                              <p className="text-sm text-gray-500">{friend.major}</p>
+                            />
+                            <div className="flex flex-col">
+                              <h3 className="font-medium text-gray-900 text-left">{friend.name}</h3>
+                              <p className="text-sm text-gray-500 text-left">{friend.major}</p>
+                            </div>
                           </div>
-                      </Link>
+                          
+                          {/* Right side: View Profile link */}
+                          <Link 
+                            href={`/profile/${friend.userId}`} 
+                            className="ml-auto px-3 py-2 bg-blue-950 text-amber-500 rounded hover:bg-blue-200 transition"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            View Profile
+                          </Link>
+                        </div>
+                      </button>
+                    </div>
                   ))}
                 </div>
-                <div className="w-3/5 p-4 border-r overflow-y-auto h-full text-gray-600">
-                  WebChat Goes Here, Placeholder Message
-                </div>
+                
+                {/* Messages panel */}
+                <div className="w-3/5 bg-white rounded-r-lg ml-2 shadow overflow-hidden">
+                  {selectedFriend ? (
+                    <DirectMessages receiverUID={selectedFriend.userId} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      <div className="text-center p-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        <p className="text-lg font-medium">Select a friend to start chatting</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
+            </div>
           );
       };
   
