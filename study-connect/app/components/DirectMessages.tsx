@@ -22,6 +22,39 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
     const [chatDocId, setChatDocId] = useState<string | null>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    
+    // Fetch user data on component mount
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        setUserData({
+                            name: data.name,
+                            userId: user.uid,
+                            profilePic: data.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+                        });
+                    }
+                    
+                    const receiverDoc = await getDoc(doc(db, 'users', receiverUID));
+                    if (receiverDoc.exists()) {
+                        const receiverData = receiverDoc.data();
+                        setReceiverUserData({
+                            name: receiverData.name,
+                            userId: receiverUID,
+                            profilePic: receiverData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error getting user data:", error);
+                }
+            }
+        });
+        
+        return () => unsubscribe();
+    }, [receiverUID]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ 
@@ -36,38 +69,6 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         }
     }, [messages]);
 
-    // Fetch sender and receiver user data
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        setUserData({
-                            name: data.name,
-                            userId: user.uid,
-                            profilePic: data.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
-                        });
-
-                        const receiverDoc = await getDoc(doc(db, 'users', receiverUID));
-                        if (receiverDoc.exists()) {
-                            const receiverData = receiverDoc.data();
-                            setReceiverUserData({
-                                name: receiverData.name,
-                                userId: receiverUID,
-                                profilePic: receiverData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
-                            });
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error getting user data:", error);
-                }
-            }
-        });
-        return () => unsubscribe();
-    }, [receiverUID]);
-
     // Set up message listener when user data is loaded
     useEffect(() => {
         if (!userData || !receiverUID) return;
@@ -75,7 +76,7 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         let unsubscribeMessages: () => void = () => {};
 
         const getOrCreateChatDoc = async () => {
-            // Check both possible document IDs
+            // Check both possible document IDs - important for consistent message thread
             const id1 = `${userData.userId}_${receiverUID}`;
             const id2 = `${receiverUID}_${userData.userId}`;
             
@@ -83,15 +84,13 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             const doc2 = await getDoc(doc(db, 'directMessages', id2));
             
             if (doc1.exists()) {
-                console.log(`Using existing chat document: ${id1}`);
                 setChatDocId(id1);
                 return id1;
             } else if (doc2.exists()) {
-                console.log(`Using existing chat document: ${id2}`);
                 setChatDocId(id2);
                 return id2;
             } else {
-                console.log(`Creating new chat document: ${id1}`);
+                // Create new document if neither exists
                 await setDoc(doc(db, 'directMessages', id1), {
                     messages: []
                 });
@@ -100,13 +99,16 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
             }
         };
 
+        // Get the appropriate chat document and set up listener
         getOrCreateChatDoc().then(chatId => {
+            // Store the current receiver ID to verify messages are for this conversation
+            const currentReceiverId = receiverUID;
+            
             unsubscribeMessages = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
-                if (docSnapshot.exists()) {
+                // Only update if this is still the same receiver we're chatting with
+                if (currentReceiverId === receiverUID && docSnapshot.exists()) {
                     const data = docSnapshot.data();
                     setMessages(data.messages || []);
-                } else {
-                    setMessages([]);
                 }
             });
         });
@@ -114,8 +116,8 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => {
             unsubscribeMessages();
         };
-    }, [receiverUID]);
-
+    }, [userData, receiverUID]); // Removing chatDocId from dependencies prevents unwanted re-renders
+    
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (newMessage.trim() === '' || !userData || !receiverUserData || !chatDocId) return;

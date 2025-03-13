@@ -155,8 +155,11 @@ import DirectMessages from "../components/DirectMessages";
                 
                 {/* Messages panel */}
                 <div className="w-3/5 bg-white rounded-r-lg ml-2 shadow overflow-hidden">
-                  {selectedFriend ? (
-                    <DirectMessages receiverUID={selectedFriend.userId} />
+                {selectedFriend ? (
+                    <DirectMessages 
+                      key={`chat-with-${selectedFriend.userId}`}
+                      receiverUID={selectedFriend.userId} 
+                    />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-500">
                       <div className="text-center p-8">
