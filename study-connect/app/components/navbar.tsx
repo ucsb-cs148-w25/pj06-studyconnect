@@ -180,9 +180,17 @@ export const Navbar = () => {
     return (
         <nav className="sticky top-0 bg-white text-black p-4 sm:p-6 z-50">
             <div className="container mx-auto flex justify-between items-center">
-                <Link href="/" className="text-3xl font-bold">
-                    study-connect
-                </Link>
+                <div className="flex items-center gap-3">
+                    <Image
+                        src="/s.svg"
+                        alt="study-connect logo"
+                        width={30}
+                        height={30}
+                    />
+                    <Link href="/" className="text-3xl font-bold">
+                        study-connect
+                    </Link>
+                </div>
                 <div className="flex items-center gap-8">
                     {user ? (
                         <>
