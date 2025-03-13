@@ -36,38 +36,6 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         }
     }, [messages]);
 
-    // Separate the auth listener and chat document listener
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        setUserData({
-                            name: data.name,
-                            userId: user.uid,
-                            profilePic: data.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
-                        });
-
-                        const receiverDoc = await getDoc(doc(db, 'users', receiverUID));
-                        if (receiverDoc.exists()) {
-                            const receiverData = receiverDoc.data();
-                            setReceiverUserData({
-                                name: receiverData.name,
-                                userId: receiverUID,
-                                profilePic: receiverData.profilePic || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
-                            });
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error getting user data:", error);
-                }
-            }
-        });
-        return () => unsubscribe();
-    }, [receiverUID]);
-
     // Separate effect for chat document listener
     useEffect(() => {
         if (!userData || !receiverUID) return;
@@ -92,17 +60,24 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
                 await setDoc(doc(db, 'directMessages', id1), {
                     messages: []
                 });
+                setChatDocId(id1);
                 return id1;
             }
         };
 
         getOrCreateChatDoc().then(chatId => {
-            if (chatId === chatDocId) return () => unsubscribeMessages();
+            // Set up the listener for this specific chat document
             unsubscribeMessages = onSnapshot(doc(db, 'directMessages', chatId), (docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();setMessages(data.messages || []);
-                } else {
-                    setMessages([]);
+                // Only update messages if this document belongs to the current receiver
+                const currentPossibleIds = [
+                    `${userData.userId}_${receiverUID}`,
+                    `${receiverUID}_${userData.userId}`
+                ];
+                
+                // Only update if this document is for the current conversation
+                if (currentPossibleIds.includes(docSnapshot.id) && docSnapshot.exists()) {
+                    const data = docSnapshot.data();
+                    setMessages(data.messages || []);
                 }
             });
         });
@@ -110,7 +85,8 @@ export default function DirectMessages({ receiverUID }: { receiverUID: string })
         return () => {
             unsubscribeMessages();
         };
-    }, [userData, receiverUID, chatDocId]);
+    // Remove chatDocId from dependencies - this is crucial
+    }, [userData, receiverUID]);
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
