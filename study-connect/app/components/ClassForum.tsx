@@ -17,12 +17,23 @@ interface Post {
   authorId: string;
   authorName: string;
   classId: string;
+  comments: Comment[];
   createdAt: {
     _seconds: number;
     _nanoseconds: number;
   };
   likes: number;
   likedBy: string[];
+}
+interface Comment {
+  id: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  createdAt: {
+    _seconds: number;
+    _nanoseconds: number;
+  };
 }
 
 interface ClassForumProps {
@@ -46,19 +57,30 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
     try {
       console.log('classId:', selectedClassId); // Debug log
       console.log(`&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "no quarter found"}`);
-      const response = await fetch(`/api/posts?classId=${selectedClassId}&classQuarter=${selectedClassQuarter ? selectedClassQuarter : "20251"}`);
+  
+      // 1️⃣ Fetch all posts under the specific class
+      const response = await fetch(`/api/posts?classId=${selectedClassId}&classQuarter=${selectedClassQuarter || "20251"}`);
       if (!response.ok) {
         throw new Error('Failed to fetch posts');
       }
-      const data = await response.json();
-      console.log('Fetched posts data:', data); // Debug log
-      
-      if (Array.isArray(data)) {
-        setPosts(data);
-      } else {
-        console.error('Unexpected response format:', data);
-        setError('Unexpected response format');
-      }
+  
+      const postsData: Post[] = await response.json(); 
+  
+      // 2️⃣ Fetch each post's full data with comments
+      const postsWithComments = await Promise.all(
+        postsData.map(async (post: Post) => {
+          const postResponse = await fetch(`/api/posts/${post.id}`);
+          
+          if (!postResponse.ok) {
+            console.error(`Failed to fetch full post data for ${post.id}`);
+            return { ...post, comments: [] }; // Return post with empty comments if fetch fails
+          }
+  
+          return await postResponse.json(); 
+        })
+      );
+  
+      setPosts(postsWithComments);
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError('Failed to load posts');
@@ -283,21 +305,43 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
                   <div>
                     Posted by {post.authorName} • {formatDate(post.createdAt)}
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <svg
-                      className="w-4 h-4 text-red-500"
-                      fill="currentColor"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                    <span>{post.likes || 0}</span>
+
+                  <div className="flex items-center space-x-4">
+                    {/* Likes Count */}
+                    <div className="flex items-center space-x-1">
+                      <svg
+                        className="w-4 h-4 text-red-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                      <span>{post.likes || 0}</span>
+                    </div>
+
+                    {/* Comments Count */}
+                    <div className="flex items-center space-x-1">
+                      <svg
+                        className="w-4 h-4 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 2.21-1.79 4-4 4H7l-4 4V6c0-2.21 1.79-4 4-4h10c2.21 0 4 1.79 4 4v6z"
+                        />
+                      </svg>
+                      <span>{post.comments ? post.comments.length : 0}</span>
+                    </div>
                   </div>
                 </div>
               </Link>

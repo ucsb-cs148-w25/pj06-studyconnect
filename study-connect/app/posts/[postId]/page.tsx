@@ -205,10 +205,10 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
               <button
                 onClick={handleLike}
                 disabled={!user}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                className={`flex items-center justify-center space-x-2 px-4 py-2 min-w-[145px] h-10 rounded-md transition-colors ${
                   user && post.likedBy.includes(user.uid)
                     ? 'bg-red-100 text-red-600'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                    : 'bg-gray-100 hover:bg-gray-200 text-dark-600'
                 }`}
               >
                 <svg
@@ -231,6 +231,29 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
                   Sign in to like this post
                 </span>
               )}
+              {/* Add count of comments beside the like count */}
+              <div
+                className={`flex items-center justify-center space-x-2 px-4 py-2 min-w-[145px] h-10 rounded-md transition-colors ${
+                  user && post.comments.some(comment => comment.authorId === user.uid)
+                    ? 'bg-green-100 text-green-600'
+                    : 'bg-gray-100 text-dark-600'
+                }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 2.21-1.79 4-4 4H7l-4 4V6c0-2.21 1.79-4 4-4h10c2.21 0 4 1.79 4 4v6z"
+                  />
+                </svg>
+                <span>{post.comments.length} {post.comments.length === 1 ? 'Comment' : 'Comments'}</span>
+              </div>
             </div>
           </div>
         </article>
