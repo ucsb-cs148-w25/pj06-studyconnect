@@ -31,6 +31,7 @@ export async function GET(request: Request) {
         id: doc.id,
         title: data.title,
         content: data.content,
+        imagesRef: data.imagesRef ?? [],
         authorId: data.authorId,
         authorName: data.authorName,
         classId: data.classId_Quarter,

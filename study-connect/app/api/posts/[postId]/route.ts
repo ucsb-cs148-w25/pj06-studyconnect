@@ -45,7 +45,8 @@ export async function GET(
         _seconds: data?.createdAt?._seconds || data?.createdAt?.seconds || 0,
         _nanoseconds: data?.createdAt?._nanoseconds || data?.createdAt?.nanoseconds || 0
       },
-      comments: comments // Add comments to the response
+      comments: comments, // Add comments to the response
+      imagesRef: data?.imagesRef ?? []
     };
 
     return NextResponse.json(post);

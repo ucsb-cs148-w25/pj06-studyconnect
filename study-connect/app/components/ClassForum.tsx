@@ -14,6 +14,7 @@ interface Post {
   id: string;
   title: string;
   content: string;
+  imagesRef: string[];
   authorId: string;
   authorName: string;
   classId: string;
@@ -50,7 +51,31 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [professorData, setProfessorData] = useState<Professor[]>([]);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+
   const router = useRouter();
+  
+  const imageReader = new FileReader();
+
+  imageReader.onload = () => {
+    setImagePreviews([...imagePreviews, imageReader.result as string]);
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const image = e.target.files?.item(0);
+    if(image) {
+      setUploadedImages([...uploadedImages, image]);
+      imageReader.readAsDataURL(image);
+    }
+  }
+
+  const handelImageRemove = (e: React.MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    const imageId = parseInt(e.currentTarget.getAttribute("image-id") as string, 10);
+    setImagePreviews(imagePreviews.filter((e, i) => i !== imageId));
+    setUploadedImages(uploadedImages.filter((e, i) => i !== imageId));
+  };
 
   const fetchPostsData = async () => {
     setLoading(true);
@@ -232,6 +257,9 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
       <form 
         action={async (formData) => {
           try {
+            imagePreviews.forEach(image => formData.append("images", image));
+
+
             const result = await createPost(formData);
             if (result && result.error) {
               setError(result.error);
@@ -241,6 +269,8 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
               const form = document.querySelector('form') as HTMLFormElement;
               if (form) form.reset();
               // Fetch posts again to show the new post
+              setImagePreviews([]);
+              setUploadedImages([]);
               await fetchPostsData();
             }
           } catch (err) {
@@ -264,13 +294,56 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
         </div>
         
         <div>
+          <div className="relative">
           <textarea
             name="content"
             placeholder="Write your post..."
             className="w-full p-2 border rounded-md h-24 text-black placeholder-gray-500"
             required
           />
+
+          <input
+            className="hidden"
+            type="file"
+            id="form-image"
+            accept="image/*"
+            onChange={handleImageUpload} 
+          />
+          <label
+            className="
+              absolute right-4 bottom-4
+              w-12 h-12 px-4 py-2 rounded-full 
+              flex items-center justify-center 
+              cursor-pointer 
+              bg-blue-500 text-white hover:bg-blue-600 transition
+              "
+            htmlFor="form-image"
+          >
+            <img width={24} height={24} src="/image-regular.svg" alt="add image" />
+          </label>
+          </div>
+          <div>
+            {
+              imagePreviews.map((imageURL, i) => (
+                <div key={`preview-image-${i}`} className='relative'>
+                  <span
+                  className='
+                    absolute top-4 right-4
+                    w-8 h-8 rounded-full
+                    flex items-center justify-center select-none
+                    cursor-pointer
+                    bg-black opacity-40 text-white hover:opacity-60 transition
+                  '
+                  onClick={handelImageRemove}
+                  image-id={i}
+                  >x</span>
+                  <img className='select-none' src={imageURL} />
+                </div>
+              ))
+            }
+          </div>
         </div>
+
         
         <button
           type="submit"
@@ -301,6 +374,15 @@ export default function ClassForum({ selectedClassId, selectedClassQuarter, onCl
                   {post.title}
                 </h3>
                 <p className="text-black mb-4">{post.content}</p>
+                <div>
+                  {post.imagesRef?.map((imageRef, i) => {
+                    return (
+                      <div key={`${post.id}-image-${i}`}>
+                        <img src={imageRef} />
+                      </div>
+                    );
+                    })}
+                </div>
                 <div className="flex items-center justify-between text-sm text-gray-500">
                   <div>
                     Posted by {post.authorName} • {formatDate(post.createdAt)}
