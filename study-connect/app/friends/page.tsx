@@ -106,7 +106,7 @@ import DirectMessages from "../components/DirectMessages";
           if (friendsList.length === 0) {
               return (
                   <div className="text-center py-8 text-gray-500">
-                      You don't have any friends yet. Add some friends to connect!
+                      {"You don't have any friends yet. Add some friends to connect!"}
                   </div>
               );
           }
