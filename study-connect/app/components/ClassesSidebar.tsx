@@ -97,7 +97,7 @@ export default function ClassesSidebar({ setSelectedClassId, setSelectedClassQua
                 {groupedClasses[quarter].map((class_) => (
                   <li
                     key={class_.courseId}
-                    className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="p-2 hover:bg-amber-50 rounded-md cursor-pointer"
                     onClick={async () => {
                       if (setSelectedClassId && setSelectedClassQuarter) {
                         const clas: Class = await fetchClassByCourseId(class_.courseId, class_.courseQuarter);
