@@ -178,29 +178,30 @@ export const Navbar = () => {
     const pendingRequests = getPendingFriendRequests();
 
     return (
-        <nav className="sticky top-0 bg-white text-black p-4 sm:p-6 z-50">
+        <nav className="sticky top-0 bg-blue-950 text-white p-4 sm:p-6 z-50">
             <div className="container mx-auto flex justify-between items-center">
                 <div className="flex items-center gap-3">
+                    <Link href="/">
                     <Image
                         src="/s.svg"
                         alt="study-connect logo"
                         width={30}
                         height={30}
-                    />
-                    <Link href="/" className="text-3xl font-bold">
+                    /></Link>
+                    <Link href="/" className="hover:text-yellow-600 text-3xl font-bold">
                         study-connect
                     </Link>
                 </div>
                 <div className="flex items-center gap-8">
                     {user ? (
                         <>
-                            <Link href="/courses" className="hover:text-blue-300 text-2xl">
+                            <Link href="/courses" className="hover:text-yellow-600 text-2xl">
                                 courses
                             </Link>
-                            <Link href="/profile" className="hover:text-blue-300 text-2xl"> 
+                            <Link href="/profile" className="hover:text-yellow-600 text-2xl"> 
                                 profile
                             </Link>
-                            <Link href="/friends" className="hover:text-blue-300 text-2xl"> 
+                            <Link href="/friends" className="hover:text-yellow-600 text-2xl"> 
                                 friends
                             </Link>
                             
