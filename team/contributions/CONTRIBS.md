@@ -29,7 +29,7 @@ Fixed production bugs and set up environment variables in group code
 
 Deploy and maintain deployment
 
-Add ability to post images in forum posts
+Add ability to post images in forum posts (developed on main)
 
 
 ### Maria
