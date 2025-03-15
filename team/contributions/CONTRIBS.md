@@ -12,6 +12,8 @@ Displayed RateMyProfessor data in the course info page.
 
 Created personal profile page such that users can see each other's profile from posts, class members, and class chats. 
 
+Added comment count to class forum page and post detail page
+
 ### Anthony
 
 Pair-programmed with Allen on create-profile page
