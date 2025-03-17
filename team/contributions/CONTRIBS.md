@@ -27,10 +27,11 @@ Focused on UI updates to application
 Helped write up Design Document (Design Process and User Experience Sections)
 
 ### Hannah
-Fixed production bugs and set up environment variables in group code
-
-Deploy and maintain deployment
-
+Fixed production bugs 
+Quick fix errors that didn't come up when previewing the application on localhost
+Set up Vercel project with appropriate environment variables, such as Google's Firebase Credentials and Cloudinary API keys.
+Set up another repo that is an identical fork of the main repo so that our app can be deployed on Vercel.
+Maintain the clone repo by synchronizing it with the main.
 Add ability to post images in forum posts (developed on main)
 
 
