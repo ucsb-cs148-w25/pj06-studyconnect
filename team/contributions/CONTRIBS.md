@@ -86,4 +86,6 @@ Various bug fixes including storing courses in backend with quarter and courseid
 
 Various UI fixes throughout PRs from feedback including major/minor dropdown, highlighting courses green in courses search, separating courses by quarter  
 
-Wrote README
+Wrote README  
+
+Added friends' page messaging between friends.
